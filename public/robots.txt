@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://karalabs.dev/sitemap-index.xml

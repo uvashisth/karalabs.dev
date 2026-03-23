@@ -1,0 +1,156 @@
+---
+import Base from '../layouts/Base.astro';
+import BlogCard from '../components/BlogCard.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 4);
+---
+
+<Base title="Kara Labs — Production AI Agents">
+  <div class="home">
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-eyebrow animate-in">KARA LABS</div>
+        <h1 class="hero-title accent-text animate-in delay-1">
+          I build production AI agents.
+        </h1>
+        <p class="hero-sub animate-in delay-2">
+          What works, what doesn't, and why. Comparisons, benchmarks, and implementation details.
+        </p>
+        <div class="hero-cta animate-in delay-3">
+          <a href="/blog" class="btn-primary">Read the Blog</a>
+          <a href="https://github.com/uvashisth" target="_blank" rel="noopener" class="btn-secondary">GitHub ↗</a>
+        </div>
+      </div>
+      <div class="hero-bg" aria-hidden="true"></div>
+    </section>
+
+    <section class="areas animate-in delay-4">
+      <div class="areas-grid">
+        <div class="area-card">
+          <div class="area-icon">◇</div>
+          <h3>Context Engineering</h3>
+          <p>Agents degrade after 30 minutes. Memory architecture, JIT loading, compaction, and what actually keeps them sharp.</p>
+        </div>
+        <div class="area-card">
+          <div class="area-icon">⬡</div>
+          <h3>Agent Architectures</h3>
+          <p>Coordination patterns compared on the same task. Supervisor, pipeline, debate — which ones hold up and which ones don't.</p>
+        </div>
+        <div class="area-card">
+          <div class="area-icon">△</div>
+          <h3>Production Stack</h3>
+          <p>Observability with real cost breakdowns. No-code vs hand-coded. Deployment infra across platforms. The boring stuff that matters.</p>
+        </div>
+      </div>
+    </section>
+
+    {posts.length > 0 && (
+      <section class="recent">
+        <div class="section-header">
+          <h2>Recent Posts</h2>
+          <a href="/blog" class="see-all">All posts →</a>
+        </div>
+        <div class="posts-grid">
+          {posts.map((post) => (
+            <BlogCard
+              title={post.data.title}
+              description={post.data.description}
+              date={post.data.date}
+              category={post.data.category}
+              slug={post.id}
+              tags={post.data.tags}
+            />
+          ))}
+        </div>
+      </section>
+    )}
+  </div>
+</Base>
+
+<style>
+  .home { max-width: var(--max-width-wide); margin: 0 auto; padding: 0 1.5rem; }
+
+  .hero { position: relative; padding: 6rem 0 4rem; overflow: hidden; }
+  .hero-inner { position: relative; z-index: 1; }
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 1.25rem;
+  }
+  .hero-title {
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+  }
+  .accent-text { color: var(--accent); }
+  .hero-sub {
+    max-width: 560px;
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+  .hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.7rem 1.5rem;
+    background: var(--text);
+    color: var(--bg);
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    transition: all var(--transition);
+  }
+  .btn-primary:hover { background: var(--accent); color: var(--bg); transform: translateY(-1px); }
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.7rem 1.5rem;
+    border: 1px solid var(--border-accent);
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    transition: all var(--transition);
+  }
+  .btn-secondary:hover { border-color: var(--text-dim); color: var(--text); }
+  .hero-bg {
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .areas { padding: 2rem 0 4rem; }
+  .areas-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+  .area-card {
+    padding: 1.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color var(--transition), background var(--transition);
+  }
+  .area-card:hover { border-color: var(--border-accent); }
+  .area-icon { font-size: 1.5rem; color: var(--accent); margin-bottom: 0.75rem; }
+  .area-card h3 { font-size: 1rem; margin-bottom: 0.5rem; }
+  .area-card p { font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 0; }
+
+  .recent { padding: 2rem 0 4rem; }
+  .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+  .section-header h2 { font-size: 1.5rem; margin: 0; }
+  .see-all { font-size: 0.85rem; color: var(--text-dim); transition: color var(--transition); }
+  .see-all:hover { color: var(--accent); }
+  .posts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; }
+</style>

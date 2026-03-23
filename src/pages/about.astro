@@ -1,0 +1,57 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="About — Kara Labs" description="ML engineer in Toronto building production AI agent systems. Benchmarks, comparisons, and real implementation details.">
+  <div class="about">
+    <section class="about-hero animate-in">
+      <h1>About</h1>
+    </section>
+
+    <div class="about-content animate-in delay-1">
+      <p class="lead">
+        I'm Utkarsh. ML engineer in Toronto. My background is in ML engineering, MLOps, and cloud infrastructure.
+        I spent years on ML pipelines and cloud infra before agents ate my whole attention span.
+      </p>
+
+      <p>
+        Now I mostly care about context engineering, memory architecture, coordination patterns,
+        evaluation, security, deployment infra. The harness is the product.
+      </p>
+
+      <h2>What I Write About</h2>
+      <p>
+        The engineering behind AI agents that actually work in production. Technical deep-dives
+        with benchmarks, comparisons, and real implementation details.
+      </p>
+      <p>
+        I benchmark things and write about what I find. Multi-agent patterns compared on the same task.
+        Observability platforms tested with real cost breakdowns. No-code vs hand-coded on the same use case.
+        That kind of thing.
+      </p>
+
+      <h2>Open Source</h2>
+      <p>
+        I maintain open-source repos for production agent patterns, an eval framework, and skills
+        for Claude Code. All on <a href="https://github.com/uvashisth" target="_blank" rel="noopener">GitHub</a>.
+      </p>
+
+      <h2>Get in Touch</h2>
+      <p>
+        <a href="https://linkedin.com/in/utkarshvashisth" target="_blank" rel="noopener">LinkedIn</a>
+        <span class="separator">·</span>
+        <a href="mailto:utkarsh@karalabs.dev">utkarsh@karalabs.dev</a>
+      </p>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .about { max-width: var(--max-width); margin: 0 auto; padding: 3rem 1.5rem; }
+  .about-hero { margin-bottom: 2.5rem; }
+  .about-content .lead { font-size: 1.15rem; color: var(--text); line-height: 1.7; margin-bottom: 1.5rem; }
+  .about-content p { font-size: 1rem; line-height: 1.8; margin-bottom: 1.5rem; }
+  .about-content h2 { font-size: 1.25rem; margin-top: 2.5rem; margin-bottom: 0.75rem; }
+  .about-content a { text-decoration: underline; text-underline-offset: 3px; }
+  .separator { margin: 0 0.5rem; color: var(--text-dim); }
+</style>

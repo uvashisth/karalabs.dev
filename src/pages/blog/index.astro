@@ -1,0 +1,104 @@
+---
+import Base from '../../layouts/Base.astro';
+import BlogCard from '../../components/BlogCard.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const categories = ['All', 'Technical', 'Comparison', 'Production', 'Case Study', 'Open Source'];
+---
+
+<Base title="Blog — Kara Labs" description="Technical deep-dives on AI agent systems. Benchmarks, comparisons, and implementation details.">
+  <div class="blog-page">
+    <header class="blog-header animate-in">
+      <h1>Blog</h1>
+      <p>Benchmarks, comparisons, and implementation details.</p>
+    </header>
+
+    <nav class="categories animate-in delay-1" id="category-nav">
+      {categories.map((cat) => (
+        <button class:list={['cat-btn', { active: cat === 'All' }]} data-category={cat}>
+          {cat}
+        </button>
+      ))}
+    </nav>
+
+    <div class="posts-list animate-in delay-2" id="posts-list">
+      {posts.map((post) => (
+        <div class="post-item" data-category={post.data.category}>
+          <BlogCard
+            title={post.data.title}
+            description={post.data.description}
+            date={post.data.date}
+            category={post.data.category}
+            slug={post.id}
+            tags={post.data.tags}
+          />
+        </div>
+      ))}
+    </div>
+
+    {posts.length === 0 && (
+      <div class="empty">
+        <p>No posts yet. First one coming soon.</p>
+      </div>
+    )}
+  </div>
+</Base>
+
+<script>
+  const nav = document.getElementById('category-nav');
+  const items = document.querySelectorAll('.post-item');
+
+  nav?.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest('.cat-btn');
+    if (!btn) return;
+
+    nav.querySelectorAll('.cat-btn').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const cat = btn.getAttribute('data-category');
+    items.forEach((item) => {
+      const el = item as HTMLElement;
+      if (cat === 'All' || el.dataset.category === cat) {
+        el.style.display = '';
+      } else {
+        el.style.display = 'none';
+      }
+    });
+  });
+</script>
+
+<style>
+  .blog-page { max-width: var(--max-width-wide); margin: 0 auto; padding: 3rem 1.5rem; }
+  .blog-header { margin-bottom: 2rem; }
+  .blog-header h1 { margin-bottom: 0.5rem; }
+  .blog-header p { color: var(--text-dim); font-size: 1rem; }
+  .categories {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .cat-btn {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    padding: 0.4rem 0.9rem;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+  .cat-btn:hover { border-color: var(--border-accent); color: var(--text-muted); }
+  .cat-btn.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
+  .posts-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; }
+  .empty { text-align: center; padding: 4rem 0; }
+  .empty p { color: var(--text-dim); }
+</style>

@@ -1,0 +1,85 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+
+const navLinks = [
+  { href: '/blog', label: 'Blog' },
+  { href: '/about', label: 'About' },
+  { href: 'https://github.com/uvashisth', label: 'GitHub', external: true },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="header">
+  <nav class="nav">
+    <a href="/" class="logo">
+      <span class="logo-mark">//</span>
+      <span class="logo-text">KARA LABS</span>
+    </a>
+    <div class="nav-right">
+      <div class="nav-links">
+        {navLinks.map((link) => (
+          <a
+            href={link.href}
+            class:list={['nav-link', { active: currentPath.startsWith(link.href) }]}
+            {...(link.external ? { target: '_blank', rel: 'noopener' } : {})}
+          >
+            {link.label}
+            {link.external && <span class="external-icon">↗</span>}
+          </a>
+        ))}
+      </div>
+      <ThemeToggle />
+    </div>
+  </nav>
+</header>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--header-bg);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav {
+    max-width: var(--max-width-wide);
+    margin: 0 auto;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .logo {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.05em;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .logo:hover { color: var(--text); }
+  .logo-mark { color: var(--accent); font-size: 1.1rem; }
+  .nav-right { display: flex; align-items: center; gap: 1.5rem; }
+  .nav-links { display: flex; gap: 2rem; align-items: center; }
+  .nav-link {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 0.02em;
+    transition: color var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+  }
+  .nav-link:hover, .nav-link.active { color: var(--text); }
+  .external-icon { font-size: 0.7rem; opacity: 0.5; }
+
+  @media (max-width: 480px) {
+    .nav-links { gap: 1.25rem; }
+    .nav-right { gap: 1rem; }
+  }
+</style>

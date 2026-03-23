@@ -1,0 +1,43 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-left">
+      <span class="footer-brand">// KARA LABS</span>
+      <span class="footer-copy">© {year}</span>
+    </div>
+    <div class="footer-links">
+      <a href="/rss.xml" class="footer-link">RSS</a>
+      <a href="https://linkedin.com/in/utkarshvashisth" target="_blank" rel="noopener" class="footer-link">LinkedIn</a>
+      <a href="https://github.com/uvashisth" target="_blank" rel="noopener" class="footer-link">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer { border-top: 1px solid var(--border); margin-top: 6rem; }
+  .footer-inner {
+    max-width: var(--max-width-wide);
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .footer-left { display: flex; align-items: center; gap: 1rem; }
+  .footer-brand {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+  .footer-copy { font-size: 0.8rem; color: var(--text-dim); }
+  .footer-links { display: flex; gap: 1.5rem; }
+  .footer-link { font-size: 0.8rem; color: var(--text-dim); transition: color var(--transition); }
+  .footer-link:hover { color: var(--text); }
+</style>

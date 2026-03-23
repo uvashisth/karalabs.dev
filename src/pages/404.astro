@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="404 — Kara Labs">
+  <div class="not-found">
+    <span class="code">404</span>
+    <h1>Not Found</h1>
+    <p>This page doesn't exist yet.</p>
+    <a href="/" class="back">← Home</a>
+  </div>
+</Base>
+
+<style>
+  .not-found { max-width: var(--max-width); margin: 0 auto; padding: 8rem 1.5rem; text-align: center; }
+  .code { font-family: var(--font-mono); font-size: 5rem; font-weight: 700; color: var(--border-accent); display: block; margin-bottom: 1rem; }
+  h1 { margin-bottom: 0.5rem; }
+  p { color: var(--text-dim); margin-bottom: 2rem; }
+  .back { color: var(--text-muted); font-size: 0.9rem; }
+  .back:hover { color: var(--accent); }
+</style>

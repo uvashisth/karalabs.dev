@@ -1,0 +1,78 @@
+---
+import Base from './Base.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  date: Date;
+  category: string;
+  tags?: string[];
+}
+
+const { title, description, date, category, tags = [] } = Astro.props;
+
+const formattedDate = date.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<Base title={`${title} — Kara Labs`} description={description} type="article">
+  <article class="post">
+    <header class="post-header animate-in">
+      <div class="post-meta">
+        <span class="post-category">{category}</span>
+        <time datetime={date.toISOString()}>{formattedDate}</time>
+      </div>
+      <h1>{title}</h1>
+      <p class="post-description">{description}</p>
+      {tags.length > 0 && (
+        <div class="post-tags">
+          {tags.map((tag) => <span class="tag">{tag}</span>)}
+        </div>
+      )}
+    </header>
+    <div class="post-content animate-in delay-1">
+      <slot />
+    </div>
+    <footer class="post-footer animate-in delay-2">
+      <a href="/blog" class="back-link">← All Posts</a>
+    </footer>
+  </article>
+</Base>
+
+<style>
+  .post { max-width: var(--max-width); margin: 0 auto; padding: 3rem 1.5rem; }
+  .post-header { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+  .post-meta { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+  .post-category {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    background: var(--accent-glow);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+  }
+  time { font-size: 0.85rem; color: var(--text-dim); }
+  h1 { margin-bottom: 0.75rem; }
+  .post-description { font-size: 1.1rem; color: var(--text-muted); line-height: 1.6; }
+  .post-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+  .tag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+  }
+  .post-content { font-size: 1rem; line-height: 1.8; }
+  .post-content :global(h2) { margin-top: 3rem; }
+  .post-content :global(a) { text-decoration: underline; text-underline-offset: 3px; }
+  .post-footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+  .back-link { font-size: 0.9rem; color: var(--text-muted); transition: color var(--transition); }
+  .back-link:hover { color: var(--accent); }
+</style>
