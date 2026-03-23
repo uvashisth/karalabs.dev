@@ -7,6 +7,7 @@ const year = new Date().getFullYear();
     <div class="footer-left">
       <span class="footer-brand">// KARA LABS</span>
       <span class="footer-copy">© {year}</span>
+      <span class="footer-toronto">Made with <span class="heart">♥</span> in Toronto</span>
     </div>
     <div class="footer-links">
       <a href="/rss.xml" class="footer-link">RSS</a>
@@ -37,6 +38,8 @@ const year = new Date().getFullYear();
     letter-spacing: 0.05em;
   }
   .footer-copy { font-size: 0.8rem; color: var(--text-dim); }
+  .footer-toronto { font-size: 0.8rem; color: var(--text-dim); }
+  .heart { color: #ef4444; }
   .footer-links { display: flex; gap: 1.5rem; }
   .footer-link { font-size: 0.8rem; color: var(--text-dim); transition: color var(--transition); }
   .footer-link:hover { color: var(--text); }
