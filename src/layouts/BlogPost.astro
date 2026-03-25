@@ -6,11 +6,12 @@ interface Props {
   title: string;
   description: string;
   date: Date;
-  category: string;
+  formatTag: string;
+  topicTag?: string;
   tags?: string[];
 }
 
-const { title, description, date, category, tags = [] } = Astro.props;
+const { title, description, date, formatTag, topicTag, tags = [] } = Astro.props;
 
 const formattedDate = date.toLocaleDateString('en-US', {
   year: 'numeric',
@@ -21,9 +22,11 @@ const formattedDate = date.toLocaleDateString('en-US', {
 
 <Base title={`${title} — Kara Labs`} description={description} type="article">
   <article class="post">
+    <a href={`/blog?filter=${encodeURIComponent(formatTag)}`} class="back-link back-top animate-in">← {formatTag}</a>
     <header class="post-header animate-in">
       <div class="post-meta">
-        <span class="post-category">{category}</span>
+        <span class="post-category">{formatTag}</span>
+        {topicTag && <span class="post-topic">{topicTag}</span>}
         <time datetime={date.toISOString()}>{formattedDate}</time>
       </div>
       <h1>{title}</h1>
@@ -39,7 +42,7 @@ const formattedDate = date.toLocaleDateString('en-US', {
     </div>
     <Newsletter />
     <footer class="post-footer animate-in delay-2">
-      <a href="/blog" class="back-link">← All Posts</a>
+      <a href={`/blog?filter=${encodeURIComponent(formatTag)}`} class="back-link">← {formatTag}</a>
     </footer>
   </article>
 </Base>
@@ -56,6 +59,15 @@ const formattedDate = date.toLocaleDateString('en-US', {
     letter-spacing: 0.08em;
     color: var(--accent);
     background: var(--accent-glow);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+  }
+  .post-topic {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
     padding: 0.2rem 0.6rem;
     border-radius: 4px;
   }
@@ -77,4 +89,5 @@ const formattedDate = date.toLocaleDateString('en-US', {
   .post-footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); }
   .back-link { font-size: 0.9rem; color: var(--text-muted); transition: color var(--transition); }
   .back-link:hover { color: var(--accent); }
+  .back-top { display: inline-block; margin-bottom: 1.5rem; }
 </style>

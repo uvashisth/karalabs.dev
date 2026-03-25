@@ -6,7 +6,7 @@ import { getCollection } from 'astro:content';
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
-const categories = ['All', 'Technical', 'Comparison', 'Production', 'Case Study', 'Open Source'];
+const formatTags = ['All', 'Fundamentals', 'Comparison', 'Benchmark', 'Case Study', 'Build Log', 'Opinion', 'Open Source'];
 ---
 
 <Base title="Blog — Kara Labs" description="Technical deep-dives on AI agent systems. Benchmarks, comparisons, and implementation details.">
@@ -17,21 +17,22 @@ const categories = ['All', 'Technical', 'Comparison', 'Production', 'Case Study'
     </header>
 
     <nav class="categories animate-in delay-1" id="category-nav">
-      {categories.map((cat) => (
-        <button class:list={['cat-btn', { active: cat === 'All' }]} data-category={cat}>
-          {cat}
+      {formatTags.map((tag) => (
+        <button class:list={['cat-btn', { active: tag === 'All' }]} data-category={tag}>
+          {tag}
         </button>
       ))}
     </nav>
 
     <div class="posts-list animate-in delay-2" id="posts-list">
       {posts.map((post) => (
-        <div class="post-item" data-category={post.data.category}>
+        <div class="post-item" data-category={post.data.formatTag}>
           <BlogCard
             title={post.data.title}
             description={post.data.description}
             date={post.data.date}
-            category={post.data.category}
+            formatTag={post.data.formatTag}
+            topicTag={post.data.topicTag}
             slug={post.id}
             tags={post.data.tags}
           />
@@ -51,14 +52,9 @@ const categories = ['All', 'Technical', 'Comparison', 'Production', 'Case Study'
   const nav = document.getElementById('category-nav');
   const items = document.querySelectorAll('.post-item');
 
-  nav?.addEventListener('click', (e) => {
-    const btn = (e.target as HTMLElement).closest('.cat-btn');
-    if (!btn) return;
-
-    nav.querySelectorAll('.cat-btn').forEach((b) => b.classList.remove('active'));
-    btn.classList.add('active');
-
-    const cat = btn.getAttribute('data-category');
+  function applyFilter(cat: string) {
+    nav?.querySelectorAll('.cat-btn').forEach((b) => b.classList.remove('active'));
+    nav?.querySelector(`[data-category="${cat}"]`)?.classList.add('active');
     items.forEach((item) => {
       const el = item as HTMLElement;
       if (cat === 'All' || el.dataset.category === cat) {
@@ -67,6 +63,20 @@ const categories = ['All', 'Technical', 'Comparison', 'Production', 'Case Study'
         el.style.display = 'none';
       }
     });
+  }
+
+  // Apply filter from URL query param on load
+  const params = new URLSearchParams(window.location.search);
+  const initialFilter = params.get('filter');
+  if (initialFilter) {
+    applyFilter(initialFilter);
+  }
+
+  nav?.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest('.cat-btn');
+    if (!btn) return;
+    const cat = btn.getAttribute('data-category') || 'All';
+    applyFilter(cat);
   });
 </script>
 
