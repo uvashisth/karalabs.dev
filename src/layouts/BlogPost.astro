@@ -107,8 +107,8 @@ const formattedDate = date.toLocaleDateString('en-US', {
   .post-header { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
   .post-meta { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
   .post-category {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
+
+    font-size: var(--font-size-3xs);
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -118,22 +118,22 @@ const formattedDate = date.toLocaleDateString('en-US', {
     border-radius: 4px;
   }
   .post-topic {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
+
+    font-size: var(--font-size-3xs);
     font-weight: 500;
     color: var(--text-dim);
     border: 1px solid var(--border);
     padding: 0.2rem 0.6rem;
     border-radius: 4px;
   }
-  time { font-size: 0.85rem; color: var(--text-dim); }
-  .reading-time { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-dim); }
+  time { font-size: var(--font-size-2xs); color: var(--text-dim); }
+  .reading-time { font-size: var(--font-size-2xs); color: var(--text-dim); }
   h1 { margin-bottom: 0.75rem; }
-  .post-description { font-size: 1.1rem; color: var(--text-muted); line-height: 1.6; }
+  .post-description { font-size: var(--font-size-s); color: var(--text-muted); line-height: var(--line-height-content); }
   .post-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
   .tag {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
+
+    font-size: var(--font-size-3xs);
     color: var(--text-dim);
     border: 1px solid var(--border);
     padding: 0.2rem 0.5rem;
@@ -147,8 +147,8 @@ const formattedDate = date.toLocaleDateString('en-US', {
     background: var(--bg-card);
   }
   .toc-label {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
+
+    font-size: var(--font-size-3xs);
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -164,10 +164,10 @@ const formattedDate = date.toLocaleDateString('en-US', {
   .toc-label::after { content: '›'; font-size: 1rem; line-height: 1; transition: transform var(--transition); }
   .toc[open] .toc-label::after { transform: rotate(90deg); }
   .toc ol { list-style: none; padding: 0; margin: 0.75rem 0 0; display: flex; flex-direction: column; gap: 0.4rem; }
-  .toc li a { font-size: 0.9rem; color: var(--text-muted); text-decoration: none; transition: color var(--transition); }
+  .toc li a { font-size: var(--font-size-2xs); color: var(--text-muted); text-decoration: none; transition: color var(--transition); }
   .toc li a:hover { color: var(--accent); }
-  .toc-sub a { padding-left: 1rem; font-size: 0.85rem; }
-  .post-content { line-height: 1.6; }
+  .toc-sub a { padding-left: 1rem; font-size: var(--font-size-2xs); }
+  .post-content { line-height: var(--line-height-body); }
   .post-content :global(h2) { margin-top: 3rem; }
   .post-content :global(a) { text-decoration: underline; text-underline-offset: 3px; }
   .post-content :global(pre) { position: relative; }
@@ -176,8 +176,8 @@ const formattedDate = date.toLocaleDateString('en-US', {
     position: absolute;
     top: 0.6rem;
     left: 1rem;
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
+
+    font-size: var(--font-size-3xs);
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -187,8 +187,8 @@ const formattedDate = date.toLocaleDateString('en-US', {
     position: absolute;
     top: 0.6rem;
     right: 0.6rem;
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
+
+    font-size: var(--font-size-3xs);
     color: var(--text-dim);
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -207,10 +207,10 @@ const formattedDate = date.toLocaleDateString('en-US', {
     border-radius: var(--radius);
     background: var(--bg-card);
   }
-  .author-name { display: block; font-weight: 600; font-size: 0.95rem; color: var(--text); margin-bottom: 0.4rem; }
-  .author-desc { font-size: 0.875rem; color: var(--text-muted); line-height: 1.6; margin: 0 0 0.75rem; }
+  .author-name { display: block; font-weight: 600; font-size: var(--font-size-xs); color: var(--text); margin-bottom: 0.4rem; }
+  .author-desc { font-size: var(--font-size-2xs); color: var(--text-muted); line-height: var(--line-height-compact); margin: 0 0 0.75rem; }
   .author-links { display: flex; gap: 1rem; }
-  .author-link { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-dim); transition: color var(--transition); }
+  .author-link { font-size: var(--font-size-3xs); color: var(--text-dim); transition: color var(--transition); }
   .author-link:hover { color: var(--accent); }
   .share {
     display: flex;
@@ -219,8 +219,8 @@ const formattedDate = date.toLocaleDateString('en-US', {
     margin-top: 2rem;
   }
   .share-label {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
+
+    font-size: var(--font-size-3xs);
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -259,11 +259,11 @@ const formattedDate = date.toLocaleDateString('en-US', {
   }
   .post-nav-link:hover { border-color: var(--border-accent); background: var(--bg-card); }
   .post-nav-link.next { text-align: right; }
-  .post-nav-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; }
-  .post-nav-title { font-size: 0.875rem; color: var(--text-muted); line-height: 1.4; }
+  .post-nav-label { font-size: var(--font-size-3xs); color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; }
+  .post-nav-title { font-size: var(--font-size-2xs); color: var(--text-muted); line-height: var(--line-height-tight); }
   .post-nav-link:hover .post-nav-title { color: var(--text); }
   .post-footer { margin-top: 2rem; }
-  .back-link { font-size: 0.9rem; color: var(--text-muted); transition: color var(--transition); }
+  .back-link { font-size: var(--font-size-2xs); color: var(--text-muted); transition: color var(--transition); }
   .back-link:hover { color: var(--accent); }
   .back-top { display: inline-block; margin-bottom: 1.5rem; }
 </style>
