@@ -4,7 +4,11 @@ import BlogCard from '../../components/BlogCard.astro';
 import { getCollection } from 'astro:content';
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .map((post) => ({
+    ...post,
+    readingTime: Math.max(1, Math.round((post.body?.split(/\s+/).filter(Boolean).length ?? 0) / 200)),
+  }));
 
 const formatTags = ['All', 'Fundamentals', 'Comparison', 'Benchmark', 'Case Study', 'Build Log', 'Opinion', 'Open Source'];
 ---
@@ -16,6 +20,11 @@ const formatTags = ['All', 'Fundamentals', 'Comparison', 'Benchmark', 'Case Stud
       <p>Benchmarks, comparisons, and implementation details.</p>
     </header>
 
+    <div class="search-wrap animate-in delay-1">
+      <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="search" id="search-input" class="search-input" placeholder="Search posts..." autocomplete="off" />
+    </div>
+
     <nav class="categories animate-in delay-1" id="category-nav">
       {formatTags.map((tag) => (
         <button class:list={['cat-btn', { active: tag === 'All' }]} data-category={tag}>
@@ -26,7 +35,7 @@ const formatTags = ['All', 'Fundamentals', 'Comparison', 'Benchmark', 'Case Stud
 
     <div class="posts-list animate-in delay-2" id="posts-list">
       {posts.map((post) => (
-        <div class="post-item" data-category={post.data.formatTag}>
+        <div class="post-item" data-category={post.data.formatTag} data-search={[post.data.title, post.data.description, ...post.data.tags].join(' ').toLowerCase()}>
           <BlogCard
             title={post.data.title}
             description={post.data.description}
@@ -35,6 +44,7 @@ const formatTags = ['All', 'Fundamentals', 'Comparison', 'Benchmark', 'Case Stud
             topicTag={post.data.topicTag}
             slug={post.id}
             tags={post.data.tags}
+            readingTime={post.readingTime}
           />
         </div>
       ))}
@@ -45,44 +55,87 @@ const formatTags = ['All', 'Fundamentals', 'Comparison', 'Benchmark', 'Case Stud
         <p>No posts yet. First one coming soon.</p>
       </div>
     )}
+    <div class="empty-filter" id="empty-filter" style="display:none">
+      <p>No posts in this category yet.</p>
+    </div>
   </div>
 </Base>
 
 <script>
   const nav = document.getElementById('category-nav');
+  const searchInput = document.getElementById('search-input') as HTMLInputElement;
   const items = document.querySelectorAll('.post-item');
+  const emptyFilter = document.getElementById('empty-filter');
 
-  function applyFilter(cat: string) {
+  let currentCat = 'All';
+  let currentQuery = '';
+
+  function applyFilters() {
     nav?.querySelectorAll('.cat-btn').forEach((b) => b.classList.remove('active'));
-    nav?.querySelector(`[data-category="${cat}"]`)?.classList.add('active');
+    nav?.querySelector(`[data-category="${currentCat}"]`)?.classList.add('active');
+    let visible = 0;
     items.forEach((item) => {
       const el = item as HTMLElement;
-      if (cat === 'All' || el.dataset.category === cat) {
+      const matchesCat = currentCat === 'All' || el.dataset.category === currentCat;
+      const matchesQuery = !currentQuery || (el.dataset.search ?? '').includes(currentQuery);
+      if (matchesCat && matchesQuery) {
         el.style.display = '';
+        visible++;
       } else {
         el.style.display = 'none';
       }
     });
+    if (emptyFilter) emptyFilter.style.display = visible === 0 ? '' : 'none';
   }
 
-  // Apply filter from URL query param on load
   const params = new URLSearchParams(window.location.search);
   const initialFilter = params.get('filter');
-  if (initialFilter) {
-    applyFilter(initialFilter);
-  }
+  if (initialFilter) { currentCat = initialFilter; }
+  applyFilters();
 
   nav?.addEventListener('click', (e) => {
     const btn = (e.target as HTMLElement).closest('.cat-btn');
     if (!btn) return;
-    const cat = btn.getAttribute('data-category') || 'All';
-    applyFilter(cat);
+    currentCat = btn.getAttribute('data-category') || 'All';
+    applyFilters();
+  });
+
+  searchInput?.addEventListener('input', () => {
+    currentQuery = searchInput.value.trim().toLowerCase();
+    applyFilters();
   });
 </script>
 
 <style>
   .blog-page { max-width: var(--max-width-wide); margin: 0 auto; padding: 3rem 1.5rem; }
   .blog-header { margin-bottom: 2rem; }
+  .search-wrap {
+    position: relative;
+    margin-bottom: 1rem;
+  }
+  .search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-dim);
+    pointer-events: none;
+  }
+  .search-input {
+    width: 100%;
+    padding: 0.6rem 1rem 0.6rem 2.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    outline: none;
+    transition: border-color var(--transition);
+  }
+  .search-input::placeholder { color: var(--text-dim); }
+  .search-input:focus { border-color: var(--border-accent); }
+  .search-input::-webkit-search-cancel-button { cursor: pointer; }
   .blog-header h1 { margin-bottom: 0.5rem; }
   .blog-header p { color: var(--text-dim); font-size: 1rem; }
   .categories {
@@ -109,6 +162,6 @@ const formatTags = ['All', 'Fundamentals', 'Comparison', 'Benchmark', 'Case Stud
   .cat-btn:hover { border-color: var(--border-accent); color: var(--text-muted); }
   .cat-btn.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
   .posts-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; }
-  .empty { text-align: center; padding: 4rem 0; }
-  .empty p { color: var(--text-dim); }
+  .empty, .empty-filter { text-align: center; padding: 4rem 0; }
+  .empty p, .empty-filter p { color: var(--text-dim); }
 </style>

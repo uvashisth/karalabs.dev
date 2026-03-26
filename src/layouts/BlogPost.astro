@@ -9,9 +9,16 @@ interface Props {
   formatTag: string;
   topicTag?: string;
   tags?: string[];
+  image?: string;
+  readingTime?: number;
+  headings?: { depth: number; slug: string; text: string }[];
 }
 
-const { title, description, date, formatTag, topicTag, tags = [] } = Astro.props;
+const { title, description, date, formatTag, topicTag, tags = [], image, readingTime, headings = [] } = Astro.props;
+const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
+
+const shareUrl = encodeURIComponent(Astro.url.href);
+const shareText = encodeURIComponent(title);
 
 const formattedDate = date.toLocaleDateString('en-US', {
   year: 'numeric',
@@ -20,7 +27,7 @@ const formattedDate = date.toLocaleDateString('en-US', {
 });
 ---
 
-<Base title={`${title} — Kara Labs`} description={description} type="article">
+<Base title={`${title} — Kara Labs`} description={description} image={image} type="article" publishedTime={date.toISOString()} author="Utkarsh">
   <article class="post">
     <a href={`/blog?filter=${encodeURIComponent(formatTag)}`} class="back-link back-top animate-in">← {formatTag}</a>
     <header class="post-header animate-in">
@@ -28,6 +35,7 @@ const formattedDate = date.toLocaleDateString('en-US', {
         <span class="post-category">{formatTag}</span>
         {topicTag && <span class="post-topic">{topicTag}</span>}
         <time datetime={date.toISOString()}>{formattedDate}</time>
+        {readingTime && <span class="reading-time">{readingTime} min read</span>}
       </div>
       <h1>{title}</h1>
       <p class="post-description">{description}</p>
@@ -37,10 +45,42 @@ const formattedDate = date.toLocaleDateString('en-US', {
         </div>
       )}
     </header>
+    {tocHeadings.length >= 2 && (
+      <details class="toc animate-in delay-1">
+        <summary class="toc-label">Contents</summary>
+        <ol>
+          {tocHeadings.map((h) => (
+            <li class={h.depth === 3 ? 'toc-sub' : ''}>
+              <a href={`#${h.slug}`}>{h.text}</a>
+            </li>
+          ))}
+        </ol>
+      </details>
+    )}
     <div class="post-content animate-in delay-1">
       <slot />
     </div>
+    <div class="author-bio animate-in delay-2">
+      <div class="author-avatar">U</div>
+      <div class="author-info">
+        <span class="author-name">Utkarsh</span>
+        <p class="author-desc">ML engineer building production AI agents. Every comparison includes real benchmarks, every post leads with findings.</p>
+        <div class="author-links">
+          <a href="https://linkedin.com/in/utkarshvashisth" target="_blank" rel="noopener" class="author-link">LinkedIn ↗</a>
+          <a href="https://github.com/karalabs-dev" target="_blank" rel="noopener" class="author-link">GitHub ↗</a>
+        </div>
+      </div>
+    </div>
     <Newsletter />
+    <div class="share animate-in delay-2">
+      <span class="share-label">Share</span>
+      <a href={`https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareText}`} target="_blank" rel="noopener" class="share-link" aria-label="Share on X / Twitter">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.259 5.63 5.905-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </a>
+      <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`} target="_blank" rel="noopener" class="share-link" aria-label="Share on LinkedIn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      </a>
+    </div>
     <footer class="post-footer animate-in delay-2">
       <a href={`/blog?filter=${encodeURIComponent(formatTag)}`} class="back-link">← {formatTag}</a>
     </footer>
@@ -72,6 +112,7 @@ const formattedDate = date.toLocaleDateString('en-US', {
     border-radius: 4px;
   }
   time { font-size: 0.85rem; color: var(--text-dim); }
+  .reading-time { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-dim); }
   h1 { margin-bottom: 0.75rem; }
   .post-description { font-size: 1.1rem; color: var(--text-muted); line-height: 1.6; }
   .post-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
@@ -83,11 +124,133 @@ const formattedDate = date.toLocaleDateString('en-US', {
     padding: 0.2rem 0.5rem;
     border-radius: 4px;
   }
+  .toc {
+    margin-bottom: 2.5rem;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+  }
+  .toc-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+  .toc-label::-webkit-details-marker { display: none; }
+  .toc-label::after { content: '›'; font-size: 1rem; line-height: 1; transition: transform var(--transition); }
+  .toc[open] .toc-label::after { transform: rotate(90deg); }
+  .toc ol { list-style: none; padding: 0; margin: 0.75rem 0 0; display: flex; flex-direction: column; gap: 0.4rem; }
+  .toc li a { font-size: 0.9rem; color: var(--text-muted); text-decoration: none; transition: color var(--transition); }
+  .toc li a:hover { color: var(--accent); }
+  .toc-sub a { padding-left: 1rem; font-size: 0.85rem; }
   .post-content { font-size: 1rem; line-height: 1.8; }
   .post-content :global(h2) { margin-top: 3rem; }
   .post-content :global(a) { text-decoration: underline; text-underline-offset: 3px; }
+  .post-content :global(pre) { position: relative; }
+  .post-content :global(.copy-btn) {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.2rem 0.5rem;
+    cursor: pointer;
+    transition: color var(--transition), border-color var(--transition);
+    opacity: 0;
+  }
+  .post-content :global(pre:hover .copy-btn) { opacity: 1; }
+  .post-content :global(.copy-btn:hover) { color: var(--accent); border-color: var(--accent); }
+  .author-bio {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+    margin-top: 3rem;
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+  }
+  .author-avatar {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--accent-glow);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .author-info { display: flex; flex-direction: column; gap: 0.4rem; }
+  .author-name { font-weight: 600; font-size: 0.95rem; color: var(--text); }
+  .author-desc { font-size: 0.875rem; color: var(--text-muted); line-height: 1.6; margin: 0; }
+  .author-links { display: flex; gap: 1rem; margin-top: 0.25rem; }
+  .author-link { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-dim); transition: color var(--transition); }
+  .author-link:hover { color: var(--accent); }
+  .share {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 3rem;
+    padding: 1.25rem 0;
+    border-top: 1px solid var(--border);
+  }
+  .share-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+  }
+  .share-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    text-decoration: none;
+    transition: color var(--transition), border-color var(--transition);
+  }
+  .share-link:hover { color: var(--accent); border-color: var(--accent); }
   .post-footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); }
   .back-link { font-size: 0.9rem; color: var(--text-muted); transition: color var(--transition); }
   .back-link:hover { color: var(--accent); }
   .back-top { display: inline-block; margin-bottom: 1.5rem; }
 </style>
+
+<script>
+  document.querySelectorAll('.post-content pre').forEach((pre) => {
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.addEventListener('click', () => {
+      const code = pre.querySelector('code')?.innerText ?? (pre as HTMLElement).innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+      });
+    });
+    pre.appendChild(btn);
+  });
+</script>
