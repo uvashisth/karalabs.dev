@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import BlogCard from '../components/BlogCard.astro';
+import Newsletter from '../components/Newsletter.astro';
 import { getCollection } from 'astro:content';
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
@@ -73,6 +74,8 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
         </div>
       </section>
     )}
+
+    <Newsletter />
   </div>
 </Base>
 
@@ -159,4 +162,6 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .see-all { font-size: 0.85rem; color: var(--text-dim); transition: color var(--transition); }
   .see-all:hover { color: var(--accent); }
   .posts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; }
+
 </style>
+

@@ -1,73 +1,58 @@
 <div class="newsletter">
   <h3>Stay in the loop</h3>
   <p>New posts on AI agents, benchmarks, and production systems — no spam.</p>
-  <iframe name="nl-hidden" style="display:none;"></iframe>
-  <form
-    class="nl-form"
-    id="nl-form"
-    action="https://app.kit.com/forms/9238789/subscriptions"
-    method="post"
-    target="nl-hidden"
-  >
-    <input type="email" name="email_address" placeholder="you@email.com" required />
+  <form class="nl-form" id="nl-form">
+    <input type="email" id="nl-email" placeholder="you@email.com" required />
     <button type="submit">Subscribe</button>
   </form>
-  <p class="nl-msg" id="nl-msg"></p>
 </div>
 
 <script>
   const form = document.getElementById('nl-form') as HTMLFormElement;
-  const msg = document.getElementById('nl-msg')!;
 
-  form?.addEventListener('submit', () => {
-    const btn = form.querySelector('button')!;
-    btn.textContent = '...';
-    btn.disabled = true;
-    setTimeout(() => {
-      form.style.display = 'none';
-      msg.textContent = "You're in! Check your email to confirm.";
-    }, 2000);
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = (document.getElementById('nl-email') as HTMLInputElement).value;
+    window.location.href = `https://karalabs.substack.com/subscribe?email=${encodeURIComponent(email)}`;
   });
 </script>
 
 <style>
   .newsletter {
-    margin-top: 4rem;
-    padding: 2rem;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--bg-raised);
+    margin-top: 2rem;
+    padding: 2rem 0;
     text-align: center;
   }
-  .newsletter h3 { margin-bottom: 0.5rem; font-size: 1.1rem; }
+  .newsletter h3 { margin-bottom: 0.5rem; font-size: 1.1rem; margin-top: 0; }
   .newsletter p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.25rem; }
-  .nl-form { display: flex; gap: 0.5rem; max-width: 400px; margin: 0 auto; }
+  .nl-form { display: flex; gap: 0.5rem; max-width: 420px; margin: 0 auto; }
   .nl-form input {
     flex: 1;
-    padding: 0.6rem 0.8rem;
-    font-size: 0.85rem;
+    padding: 0.65rem 1.1rem;
+    font-size: 0.9rem;
     font-family: var(--font-body);
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: 9999px;
     background: var(--bg);
     color: var(--text);
     outline: none;
+    transition: border-color var(--transition);
   }
+  .nl-form input::placeholder { color: var(--text-dim); }
   .nl-form input:focus { border-color: var(--accent); }
   .nl-form button {
-    padding: 0.6rem 1.2rem;
-    font-size: 0.85rem;
+    padding: 0.65rem 1.4rem;
+    font-size: 0.9rem;
     font-weight: 600;
     font-family: var(--font-body);
     background: var(--accent);
     color: var(--bg);
     border: none;
-    border-radius: 4px;
+    border-radius: 9999px;
     cursor: pointer;
+    white-space: nowrap;
+    transition: opacity var(--transition);
   }
   .nl-form button:hover { opacity: 0.85; }
-  .nl-form button:disabled { opacity: 0.5; cursor: not-allowed; }
-  .nl-msg:empty { display: none; }
-  .nl-msg { font-size: 0.85rem; margin-top: 0.75rem; color: var(--accent); }
   @media (max-width: 480px) { .nl-form { flex-direction: column; } }
 </style>

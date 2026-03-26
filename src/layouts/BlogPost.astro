@@ -63,14 +63,11 @@ const formattedDate = date.toLocaleDateString('en-US', {
       <slot />
     </div>
     <div class="author-bio animate-in delay-2">
-      <div class="author-avatar">U</div>
-      <div class="author-info">
-        <span class="author-name">Utkarsh</span>
-        <p class="author-desc">Building AI agents across frameworks, platforms, and architectures. Based in Toronto.</p>
-        <div class="author-links">
-          <a href="https://linkedin.com/in/utkarshvashisth" target="_blank" rel="noopener" class="author-link">LinkedIn ↗</a>
-          <a href="https://github.com/karalabs-dev" target="_blank" rel="noopener" class="author-link">GitHub ↗</a>
-        </div>
+      <span class="author-name">Utkarsh</span>
+      <p class="author-desc">Building AI agents across frameworks, platforms, and architectures. Based in Toronto.</p>
+      <div class="author-links">
+        <a href="https://linkedin.com/in/utkarshvashisth" target="_blank" rel="noopener" class="author-link">LinkedIn ↗</a>
+        <a href="https://github.com/karalabs-dev" target="_blank" rel="noopener" class="author-link">GitHub ↗</a>
       </div>
     </div>
     <Newsletter />
@@ -204,43 +201,22 @@ const formattedDate = date.toLocaleDateString('en-US', {
   .post-content :global(pre:hover .copy-btn) { opacity: 1; }
   .post-content :global(.copy-btn:hover) { color: var(--accent); border-color: var(--accent); }
   .author-bio {
-    display: flex;
-    gap: 1.25rem;
-    align-items: flex-start;
     margin-top: 3rem;
     padding: 1.5rem;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     background: var(--bg-card);
   }
-  .author-avatar {
-    flex-shrink: 0;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: var(--accent-glow);
-    border: 1px solid var(--accent);
-    color: var(--accent);
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .author-info { display: flex; flex-direction: column; gap: 0.4rem; }
-  .author-name { font-weight: 600; font-size: 0.95rem; color: var(--text); }
-  .author-desc { font-size: 0.875rem; color: var(--text-muted); line-height: 1.6; margin: 0; }
-  .author-links { display: flex; gap: 1rem; margin-top: 0.25rem; }
+  .author-name { display: block; font-weight: 600; font-size: 0.95rem; color: var(--text); margin-bottom: 0.4rem; }
+  .author-desc { font-size: 0.875rem; color: var(--text-muted); line-height: 1.6; margin: 0 0 0.75rem; }
+  .author-links { display: flex; gap: 1rem; }
   .author-link { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-dim); transition: color var(--transition); }
   .author-link:hover { color: var(--accent); }
   .share {
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin-top: 3rem;
-    padding: 1.25rem 0;
-    border-top: 1px solid var(--border);
+    margin-top: 2rem;
   }
   .share-label {
     font-family: var(--font-mono);
@@ -286,7 +262,7 @@ const formattedDate = date.toLocaleDateString('en-US', {
   .post-nav-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; }
   .post-nav-title { font-size: 0.875rem; color: var(--text-muted); line-height: 1.4; }
   .post-nav-link:hover .post-nav-title { color: var(--text); }
-  .post-footer { margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+  .post-footer { margin-top: 2rem; }
   .back-link { font-size: 0.9rem; color: var(--text-muted); transition: color var(--transition); }
   .back-link:hover { color: var(--accent); }
   .back-top { display: inline-block; margin-bottom: 1.5rem; }
