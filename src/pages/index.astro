@@ -5,7 +5,11 @@ import { getCollection } from 'astro:content';
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-  .slice(0, 4);
+  .slice(0, 4)
+  .map((post) => ({
+    ...post,
+    readingTime: Math.max(1, Math.round((post.body?.split(/\s+/).filter(Boolean).length ?? 0) / 200)),
+  }));
 ---
 
 <Base title="Kara Labs — Production AI Agents">
@@ -63,6 +67,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
               topicTag={post.data.topicTag}
               slug={post.id}
               tags={post.data.tags}
+              readingTime={post.readingTime}
             />
           ))}
         </div>
