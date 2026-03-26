@@ -35,17 +35,17 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
     <section class="areas animate-in delay-4">
       <div class="areas-grid">
         <div class="area-card">
-          <div class="area-icon">◇</div>
+          <svg class="area-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l5 5-5 5-5-5z M12 12l5 5-5 5-5-5z" /></svg>
           <h3>Context Engineering</h3>
           <p>Agents degrade after 30 minutes. Memory architecture, JIT loading, compaction, and what actually keeps them sharp.</p>
         </div>
         <div class="area-card">
-          <div class="area-icon">⬡</div>
+          <svg class="area-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l8.66 5v10L12 22l-8.66-5V7z" /></svg>
           <h3>Agent Architectures</h3>
           <p>Coordination patterns compared on the same task. Supervisor, pipeline, debate — which ones hold up and which ones don't.</p>
         </div>
         <div class="area-card">
-          <div class="area-icon">△</div>
+          <svg class="area-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3L2 21h20z" /></svg>
           <h3>Production Stack</h3>
           <p>Observability with real cost breakdowns. No-code vs hand-coded. Deployment infra across platforms. The boring stuff that matters.</p>
         </div>
@@ -110,7 +110,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .btn-primary {
     display: inline-flex;
     align-items: center;
-    padding: 0.7rem 1.5rem;
+    padding: 0.5rem 1.25rem;
     background: var(--text);
     color: var(--bg);
     font-weight: 600;
@@ -122,10 +122,10 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .btn-secondary {
     display: inline-flex;
     align-items: center;
-    padding: 0.7rem 1.5rem;
+    padding: 0.5rem 1.25rem;
     border: 1px solid var(--border-accent);
     color: var(--text-muted);
-    font-weight: 500;
+    font-weight: 600;
     font-size: 0.9rem;
     border-radius: 6px;
     transition: all var(--transition);
@@ -145,14 +145,14 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .areas { padding: 2rem 0 4rem; }
   .areas-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
   .area-card {
-    padding: 1.5rem;
+    padding: 1rem;
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     transition: border-color var(--transition), background var(--transition);
   }
   .area-card:hover { border-color: var(--border-accent); }
-  .area-icon { font-size: 1.5rem; color: var(--accent); margin-bottom: 0.75rem; }
+  .area-icon { width: 24px; height: 24px; color: var(--accent); margin-bottom: 0.5rem; }
   .area-card h3 { font-size: 1rem; margin-bottom: 0.5rem; }
   .area-card p { font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 0; }
 
