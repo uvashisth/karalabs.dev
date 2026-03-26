@@ -85,8 +85,8 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .hero { position: relative; padding: 6rem 0 4rem; overflow: hidden; }
   .hero-inner { position: relative; z-index: 1; }
   .hero-eyebrow {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
+
+    font-size: var(--font-size-3xs);
     font-weight: 500;
     letter-spacing: 0.15em;
     color: var(--accent);
@@ -95,15 +95,15 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .hero-title {
     font-size: clamp(2.5rem, 6vw, 4rem);
     font-weight: 800;
-    line-height: 1.1;
+    line-height: var(--line-height-display);
     margin-bottom: 1.5rem;
   }
   .accent-text { color: var(--accent); }
   .hero-sub {
     max-width: 560px;
-    font-size: 1.1rem;
+    font-size: var(--font-size-s);
     color: var(--text-muted);
-    line-height: 1.6;
+    line-height: var(--line-height-content);
     margin-bottom: 2rem;
   }
   .hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; }
@@ -114,7 +114,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
     background: var(--text);
     color: var(--bg);
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: var(--font-size-2xs);
     border-radius: 6px;
     transition: all var(--transition);
   }
@@ -126,7 +126,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
     border: 1px solid var(--border-accent);
     color: var(--text-muted);
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: var(--font-size-2xs);
     border-radius: 6px;
     transition: all var(--transition);
   }
@@ -154,12 +154,12 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .area-card:hover { border-color: var(--border-accent); }
   .area-icon { width: 24px; height: 24px; color: var(--accent); margin-bottom: 0.5rem; }
   .area-card h3 { font-size: 1rem; margin-bottom: 0.5rem; }
-  .area-card p { font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 0; }
+  .area-card p { font-size: var(--font-size-xs); color: var(--text-dim); line-height: var(--line-height-compact); margin-bottom: 0; }
 
   .recent { padding: 2rem 0 4rem; }
   .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
   .section-header h2 { margin: 0; }
-  .see-all { font-size: 0.85rem; color: var(--text-dim); transition: color var(--transition); }
+  .see-all { font-size: var(--font-size-2xs); color: var(--text-dim); transition: color var(--transition); }
   .see-all:hover { color: var(--accent); }
   .posts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; }
 
