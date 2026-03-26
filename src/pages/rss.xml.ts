@@ -15,6 +15,7 @@ export async function GET(context: any) {
       pubDate: post.data.date,
       link: `/blog/${post.id}/`,
       categories: [post.data.formatTag, ...(post.data.topicTag ? [post.data.topicTag] : []), ...post.data.tags],
+      content: post.body ?? '',
     })),
   });
 }
