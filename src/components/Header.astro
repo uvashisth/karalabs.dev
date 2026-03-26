@@ -13,7 +13,7 @@ const currentPath = Astro.url.pathname;
 <header class="header">
   <nav class="nav">
     <a href="/" class="logo">
-      <span class="logo-mark">//</span>
+      <svg class="logo-mark" width="20" height="20" viewBox="0 0 32 32" fill="none"><line x1="16" y1="16" x2="7" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/><line x1="16" y1="16" x2="25" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/><line x1="16" y1="16" x2="16" y2="26" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/><circle cx="7" cy="8" r="2.5" fill="var(--bg)" stroke="currentColor" stroke-width="1.5"/><circle cx="25" cy="8" r="2.5" fill="var(--bg)" stroke="currentColor" stroke-width="1.5"/><circle cx="16" cy="26" r="2.5" fill="var(--bg)" stroke="currentColor" stroke-width="1.5"/><circle cx="16" cy="16" r="3.5" fill="currentColor"/></svg>
       <span class="logo-text">KARA LABS</span>
     </a>
     <div class="nav-right">
@@ -91,7 +91,7 @@ const currentPath = Astro.url.pathname;
     gap: 0.25rem;
   }
   .logo:hover { color: var(--text); }
-  .logo-mark { color: var(--accent); font-size: 1.1rem; }
+  .logo-mark { color: var(--accent); flex-shrink: 0; }
   .nav-right { display: flex; align-items: center; gap: 1.5rem; }
   .nav-links { display: flex; gap: 2rem; align-items: center; }
   .nav-link {
