@@ -1,0 +1,80 @@
+---
+interface Props {
+  type?: 'tip' | 'tldr' | 'warning' | 'note';
+}
+
+const { type = 'note' } = Astro.props;
+
+const config: Record<string, { label: string; icon: string }> = {
+  tip: { label: 'Tip', icon: '💡' },
+  tldr: { label: 'TLDR', icon: '💡' },
+  warning: { label: 'Warning', icon: '⚠️' },
+  note: { label: 'Note', icon: 'ℹ️' },
+};
+
+const { label, icon } = config[type];
+---
+
+<aside class={`callout callout-${type}`}>
+  <span class="callout-header">{icon} {label}</span>
+  <div class="callout-body">
+    <slot />
+  </div>
+</aside>
+
+<style>
+  .callout {
+    margin: 1.5rem 0;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+  }
+  .callout-header {
+    display: block;
+    font-size: var(--font-size-2xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+  .callout-body {
+    font-size: var(--font-size-2xs);
+    line-height: var(--line-height-content);
+    color: var(--text-muted);
+  }
+  .callout-body :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  /* Tip & TLDR — accent cyan */
+  .callout-tip,
+  .callout-tldr {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-glow);
+  }
+  .callout-tip .callout-header,
+  .callout-tldr .callout-header {
+    color: var(--accent);
+  }
+
+  /* Warning — amber */
+  .callout-warning {
+    border-left: 3px solid #f59e0b;
+    background: rgba(245, 158, 11, 0.08);
+  }
+  .callout-warning .callout-header {
+    color: #f59e0b;
+  }
+  [data-theme="light"] .callout-warning {
+    background: rgba(245, 158, 11, 0.06);
+  }
+
+  /* Note — neutral */
+  .callout-note {
+    border-left: 3px solid var(--text-dim);
+  }
+  .callout-note .callout-header {
+    color: var(--text-dim);
+  }
+</style>

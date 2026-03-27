@@ -32,6 +32,11 @@ const formattedDate = date.toLocaleDateString('en-US', {
 <Base title={`${title} — Kara Labs`} description={description} image={image} type="article" publishedTime={date.toISOString()} author="Utkarsh">
   <article class="post">
     <a href={`/blog?filter=${encodeURIComponent(formatTag)}`} class="back-link back-top animate-in">← {formatTag}</a>
+    {image && (
+      <div class="cover-image animate-in">
+        <img src={image} alt={title} loading="eager" />
+      </div>
+    )}
     <header class="post-header animate-in">
       <div class="post-meta">
         <span class="post-category">{formatTag}</span>
@@ -104,7 +109,9 @@ const formattedDate = date.toLocaleDateString('en-US', {
 
 <style>
   .post { max-width: var(--max-width); margin: 0 auto; padding: 3rem 1.5rem; }
-  .post-header { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+  .post-header { margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+  .cover-image { margin-bottom: 2.5rem; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
+  .cover-image img { width: 100%; height: auto; display: block; }
   .post-meta { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
   .post-category {
 
