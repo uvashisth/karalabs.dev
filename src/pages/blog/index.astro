@@ -3,14 +3,23 @@ import Base from '../../layouts/Base.astro';
 import BlogCard from '../../components/BlogCard.astro';
 import { getCollection } from 'astro:content';
 
-const posts = (await getCollection('blog', ({ data }) => !data.draft))
+const allPosts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
   .map((post) => ({
     ...post,
     readingTime: Math.max(1, Math.round((post.body?.split(/\s+/).filter(Boolean).length ?? 0) / 200)),
   }));
 
+const featured = allPosts[0];
+const posts = allPosts.slice(1);
+
 const formatTags = ['All', 'Fundamentals', 'Comparison', 'Benchmark', 'Case Study', 'Build Log', 'Opinion', 'Open Source'];
+
+const featuredDate = featured?.data.date.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
 ---
 
 <Base title="Blog — Kara Labs" description="Technical deep-dives on AI agent systems. Benchmarks, comparisons, and implementation details.">
@@ -33,6 +42,26 @@ const formatTags = ['All', 'Fundamentals', 'Comparison', 'Benchmark', 'Case Stud
       ))}
     </nav>
 
+    {featured && (
+      <a href={`/blog/${featured.id}`} class="featured-post animate-in delay-2" id="featured-post" data-category={featured.data.formatTag} data-search={[featured.data.title, featured.data.description, ...featured.data.tags].join(' ').toLowerCase()}>
+        {featured.data.image && (
+          <div class="featured-image">
+            <img src={featured.data.image} alt={featured.data.title} loading="eager" />
+          </div>
+        )}
+        <div class="featured-content">
+          <div class="featured-meta">
+            <span class="featured-category">{featured.data.formatTag}</span>
+            {featured.data.topicTag && <span class="featured-topic">{featured.data.topicTag}</span>}
+            <span class="featured-date">{featuredDate}</span>
+            <span class="featured-read">{featured.readingTime} min read</span>
+          </div>
+          <h2 class="featured-title">{featured.data.title}</h2>
+          <p class="featured-desc">{featured.data.description}</p>
+        </div>
+      </a>
+    )}
+
     <div class="posts-list animate-in delay-2" id="posts-list">
       {posts.map((post) => (
         <div class="post-item" data-category={post.data.formatTag} data-search={[post.data.title, post.data.description, ...post.data.tags].join(' ').toLowerCase()}>
@@ -51,7 +80,7 @@ const formatTags = ['All', 'Fundamentals', 'Comparison', 'Benchmark', 'Case Stud
       ))}
     </div>
 
-    {posts.length === 0 && (
+    {allPosts.length === 0 && (
       <div class="empty">
         <p>No posts yet. First one coming soon.</p>
       </div>
@@ -66,6 +95,7 @@ const formatTags = ['All', 'Fundamentals', 'Comparison', 'Benchmark', 'Case Stud
   const nav = document.getElementById('category-nav');
   const searchInput = document.getElementById('search-input') as HTMLInputElement;
   const items = document.querySelectorAll('.post-item');
+  const featured = document.getElementById('featured-post') as HTMLElement | null;
   const emptyFilter = document.getElementById('empty-filter');
 
   let currentCat = 'All';
@@ -75,6 +105,18 @@ const formatTags = ['All', 'Fundamentals', 'Comparison', 'Benchmark', 'Case Stud
     nav?.querySelectorAll('.cat-btn').forEach((b) => b.classList.remove('active'));
     nav?.querySelector(`[data-category="${currentCat}"]`)?.classList.add('active');
     let visible = 0;
+
+    if (featured) {
+      const matchesCat = currentCat === 'All' || featured.dataset.category === currentCat;
+      const matchesQuery = !currentQuery || (featured.dataset.search ?? '').includes(currentQuery);
+      if (matchesCat && matchesQuery) {
+        featured.style.display = '';
+        visible++;
+      } else {
+        featured.style.display = 'none';
+      }
+    }
+
     items.forEach((item) => {
       const el = item as HTMLElement;
       const matchesCat = currentCat === 'All' || el.dataset.category === currentCat;
@@ -162,6 +204,66 @@ const formatTags = ['All', 'Fundamentals', 'Comparison', 'Benchmark', 'Case Stud
   }
   .cat-btn:hover { border-color: var(--border-accent); color: var(--text-muted); }
   .cat-btn.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
+  .featured-post {
+    display: block;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    text-decoration: none;
+    transition: all var(--transition);
+  }
+  .featured-post:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-accent);
+    transform: translateY(-2px);
+  }
+  .featured-image {
+    margin: -1.5rem -1.5rem 1.25rem;
+    overflow: hidden;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .featured-image img {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    display: block;
+    transition: transform var(--transition);
+  }
+  .featured-post:hover .featured-image img { transform: scale(1.02); }
+  .featured-meta { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+  .featured-category {
+    font-size: var(--font-size-3xs);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    background: var(--accent-glow);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+  }
+  .featured-topic {
+    font-size: var(--font-size-3xs);
+    font-weight: 500;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+  }
+  .featured-date, .featured-read { font-size: var(--font-size-2xs); color: var(--text-dim); }
+  .featured-title {
+    font-size: clamp(1.5rem, 2vw, 1.875rem);
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    line-height: var(--line-height-heading);
+  }
+  .featured-desc {
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+    line-height: var(--line-height-content);
+    max-width: 640px;
+  }
   .posts-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; }
   .empty, .empty-filter { text-align: center; padding: 4rem 0; }
   .empty p, .empty-filter p { color: var(--text-dim); }
