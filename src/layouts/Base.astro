@@ -36,7 +36,14 @@ const jsonLd = type === 'article' ? JSON.stringify({
   author: { '@type': 'Person', name: author },
   publisher: { '@type': 'Organization', name: 'Kara Labs', url: 'https://karalabs.dev' },
   url: canonicalUrl.toString(),
-}) : null;
+}) : JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Kara Labs',
+  description,
+  url: canonicalUrl.toString(),
+  author: { '@type': 'Person', name: 'Utkarsh' },
+});
 ---
 
 <!doctype html>
@@ -63,6 +70,7 @@ const jsonLd = type === 'article' ? JSON.stringify({
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
 
+    <meta property="og:site_name" content="Kara Labs" />
     <meta property="og:type" content={type} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:title" content={title} />
@@ -78,7 +86,7 @@ const jsonLd = type === 'article' ? JSON.stringify({
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
 
-    {jsonLd && <script type="application/ld+json" set:html={jsonLd} />}
+    <script type="application/ld+json" set:html={jsonLd} />
 
     <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="/rss.xml" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
