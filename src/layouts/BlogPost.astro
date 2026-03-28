@@ -14,9 +14,10 @@ interface Props {
   headings?: { depth: number; slug: string; text: string }[];
   prev?: { slug: string; title: string } | null;
   next?: { slug: string; title: string } | null;
+  draft?: boolean;
 }
 
-const { title, description, date, formatTag, topicTag, tags = [], image, readingTime, headings = [], prev, next } = Astro.props;
+const { title, description, date, formatTag, topicTag, tags = [], image, readingTime, headings = [], prev, next, draft = false } = Astro.props;
 const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
 
 const shareUrl = encodeURIComponent(Astro.url.href);
@@ -31,6 +32,7 @@ const formattedDate = date.toLocaleDateString('en-US', {
 
 <Base title={`${title} — Kara Labs`} description={description} image={image} type="article" publishedTime={date.toISOString()} author="Utkarsh">
   <article class="post">
+    {draft && <div class="draft-banner animate-in">Draft — This post is not listed publicly</div>}
     <a href={`/blog?filter=${encodeURIComponent(formatTag)}`} class="back-link back-top animate-in">← {formatTag}</a>
     {image && (
       <div class="cover-image animate-in">
@@ -108,6 +110,19 @@ const formattedDate = date.toLocaleDateString('en-US', {
 </Base>
 
 <style>
+  .draft-banner {
+    font-size: var(--font-size-3xs);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #f5a623;
+    background: rgba(245, 166, 35, 0.1);
+    border: 1px solid rgba(245, 166, 35, 0.3);
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
   .post { max-width: var(--max-width); margin: 0 auto; padding: 3rem 1.5rem; }
   .post-header { margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
   .cover-image { margin-bottom: 2.5rem; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
@@ -177,19 +192,6 @@ const formattedDate = date.toLocaleDateString('en-US', {
   .post-content { line-height: var(--line-height-body); }
   .post-content :global(h2) { margin-top: 3rem; }
   .post-content :global(a) { text-decoration: underline; text-underline-offset: 3px; }
-  .post-content :global(pre) { position: relative; }
-  .post-content :global(pre[data-language])::before {
-    content: attr(data-language);
-    position: absolute;
-    top: 0.6rem;
-    left: 1rem;
-
-    font-size: var(--font-size-3xs);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text-dim);
-  }
   .post-content :global(.copy-btn) {
     position: absolute;
     top: 0.6rem;
@@ -276,6 +278,7 @@ const formattedDate = date.toLocaleDateString('en-US', {
 </style>
 
 <script>
+  // Copy button for code blocks
   document.querySelectorAll('.post-content pre').forEach((pre) => {
     const btn = document.createElement('button');
     btn.className = 'copy-btn';
@@ -288,5 +291,29 @@ const formattedDate = date.toLocaleDateString('en-US', {
       });
     });
     pre.appendChild(btn);
+  });
+
+  // Auto-classify blockquotes that start with Note:/Tip:/Warning:
+  document.querySelectorAll('.post-content blockquote').forEach((bq) => {
+    const first = bq.querySelector('p > strong:first-child');
+    if (!first) return;
+    const text = first.textContent?.trim().replace(/:$/, '').toLowerCase();
+    if (text === 'note') bq.classList.add('bq-note');
+    else if (text === 'tip') bq.classList.add('bq-tip');
+    else if (text === 'warning') bq.classList.add('bq-warning');
+  });
+
+  // Auto-detect TLDR paragraphs and transform into callout
+  document.querySelectorAll('.post-content > p').forEach((p) => {
+    const first = p.querySelector('strong:first-child');
+    if (!first) return;
+    const text = first.textContent?.trim().replace(/:$/, '').toLowerCase();
+    if (text === 'tldr') {
+      first.remove();
+      const callout = document.createElement('aside');
+      callout.className = 'callout callout-tldr';
+      callout.innerHTML = `<span class="callout-header">💡 TLDR</span><div class="callout-body">${p.innerHTML.trimStart()}</div>`;
+      p.replaceWith(callout);
+    }
   });
 </script>

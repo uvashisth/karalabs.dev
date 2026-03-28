@@ -101,11 +101,48 @@ pre {
   background: var(--code-bg) !important;
   border: 1px solid var(--border);
   border-radius: 9px;
-  padding: 1.25rem;
+  padding: 1.5rem;
+  padding-top: 2.5rem;
   overflow-x: auto;
   margin: clamp(1.75rem, 0.9836vw + 1.5102rem, 2.125rem) 0;
+  position: relative;
+  font-size: var(--font-size-2xs);
+  line-height: 1.5;
 }
-pre code { background: none; border: none; padding: 0; font-size: var(--font-size-2xs); line-height: var(--line-height-content); }
+pre code { background: none; border: none; padding: 0; font-size: var(--font-size-2xs); line-height: 1.45; }
+
+/* Shiki dual-theme switching */
+pre.astro-code,
+pre.astro-code span {
+  color: var(--shiki-dark) !important;
+  background-color: transparent !important;
+}
+pre.astro-code {
+  background-color: var(--code-bg) !important;
+}
+[data-theme="light"] pre.astro-code,
+[data-theme="light"] pre.astro-code span {
+  color: var(--shiki-light) !important;
+  background-color: transparent !important;
+}
+[data-theme="light"] pre.astro-code {
+  background-color: var(--code-bg) !important;
+}
+
+/* Language label on code blocks */
+pre[data-language]::before {
+  content: attr(data-language);
+  position: absolute;
+  top: 0.6rem;
+  left: 1rem;
+  font-family: var(--font-body);
+  font-size: var(--font-size-3xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  pointer-events: none;
+}
 
 blockquote {
   border-left: 3px solid var(--accent);
@@ -113,16 +150,131 @@ blockquote {
   margin: clamp(1.75rem, 0.9836vw + 1.5102rem, 2.125rem) 0;
   background: var(--bg-raised);
   border-radius: 0 var(--radius) var(--radius) 0;
+  color: var(--text);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-content);
 }
-blockquote p { margin-bottom: 0; color: var(--text); font-style: italic; }
+blockquote p { margin-bottom: 0; color: inherit; font-style: italic; }
+blockquote p + p { margin-top: 0.75rem; }
 
-ul, ol { padding-left: 1.5rem; margin-bottom: clamp(1.375rem, 0.3279vw + 1.2951rem, 1.5rem); color: var(--text-muted); }
-li { margin-bottom: 0.5rem; }
-li::marker { color: var(--accent); }
+/* Auto-detected callout blockquotes */
+blockquote.bq-note,
+blockquote.bq-tip,
+blockquote.bq-warning {
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  background: var(--accent-glow);
+  font-family: var(--font-body);
+  font-size: var(--font-size-xs);
+  font-weight: 400;
+  line-height: var(--line-height-content);
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius);
+  font-style: normal;
+}
+blockquote.bq-note p,
+blockquote.bq-tip p,
+blockquote.bq-warning p { color: var(--text-muted); }
+blockquote.bq-note p strong:first-child,
+blockquote.bq-tip p strong:first-child { color: var(--accent); }
+blockquote.bq-warning {
+  border-left-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.08);
+}
+blockquote.bq-warning p strong:first-child { color: #f59e0b; }
+
+/* Auto-detected callouts (TLDR, etc.) created by JS */
+.callout {
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+}
+.callout-header {
+  display: block;
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+.callout-body {
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-content);
+  color: var(--text-muted);
+}
+.callout-body p:last-child { margin-bottom: 0; }
+.callout-tldr {
+  border-left: 3px solid var(--accent);
+  background: var(--accent-glow);
+}
+.callout-tldr .callout-header { color: var(--accent); }
+
+ul, ol { list-style: none; padding-left: 0; margin-bottom: clamp(1.375rem, 0.3279vw + 1.2951rem, 1.5rem); color: var(--text-muted); }
+li { margin-bottom: 0.5em; margin-top: 0.5em; }
+
+/* Custom bullet circles */
+ul > li { padding-left: 2em; position: relative; }
+ul > li::before {
+  content: "";
+  position: absolute;
+  left: 0.625em;
+  top: 0.65em;
+  width: 0.5em;
+  height: 0.5em;
+  background: var(--accent);
+  border-radius: 50%;
+}
+
+/* Circled ordered numbers */
+ol { counter-reset: list; }
+ol > li { padding-left: 2.5em; position: relative; counter-increment: list; }
+ol > li::before {
+  content: counter(list);
+  position: absolute;
+  left: 0.25em;
+  top: 0.175em;
+  width: 1.875em;
+  height: 1.875em;
+  border: 2px solid var(--border-accent);
+  border-radius: 50%;
+  font-size: 0.8em;
+  font-weight: 700;
+  line-height: calc(1.875em - 4px);
+  text-align: center;
+  color: var(--text-dim);
+}
+
+/* Nested lists */
+ul ul, ol ul { margin-top: 0.5em; margin-bottom: 0; }
+ol ol, ul ol { margin-top: 0.5em; margin-bottom: 0; }
 
 img { max-width: 100%; border-radius: var(--radius); }
 
-hr { border: none; height: 1px; background: var(--border); margin: 3rem 0; }
+/* Three-dot horizontal rule */
+hr {
+  border: none;
+  background: var(--text-dim);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  margin: clamp(2.5rem, 2.623vw + 1.8607rem, 3.5rem) auto;
+  position: relative;
+  overflow: visible;
+}
+hr::before, hr::after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0;
+  width: 5px;
+  height: 5px;
+  background: var(--text-dim);
+  border-radius: 50%;
+}
+hr::before { right: calc(100% + 21px); }
+hr::after { left: calc(100% + 21px); }
 
 table {
   width: 100%;
