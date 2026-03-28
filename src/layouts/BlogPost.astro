@@ -15,9 +15,11 @@ interface Props {
   prev?: { slug: string; title: string } | null;
   next?: { slug: string; title: string } | null;
   draft?: boolean;
+  slug?: string;
 }
 
-const { title, description, date, formatTag, topicTag, tags = [], image, readingTime, headings = [], prev, next, draft = false } = Astro.props;
+const { title, description, date, formatTag, topicTag, tags = [], image, readingTime, headings = [], prev, next, draft = false, slug } = Astro.props;
+const editUrl = slug ? `https://github.com/karalabs-dev/karalabs.dev/edit/main/src/content/blog/${slug}.mdx` : null;
 const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
 
 const shareUrl = encodeURIComponent(Astro.url.href);
@@ -34,6 +36,9 @@ const formattedDate = date.toLocaleDateString('en-US', {
   <article class="post">
     {draft && <div class="draft-banner animate-in">Draft — This post is not listed publicly</div>}
     <a href={`/blog?filter=${encodeURIComponent(formatTag)}`} class="back-link back-top animate-in">← {formatTag}</a>
+    {editUrl && (
+      <a href={editUrl} target="_blank" rel="noopener" class="edit-link" id="edit-link" style="display:none">Edit ↗</a>
+    )}
     {image && (
       <div class="cover-image animate-in">
         <img src={image} alt={title} loading="eager" />
@@ -275,6 +280,20 @@ const formattedDate = date.toLocaleDateString('en-US', {
   .back-link { font-size: var(--font-size-2xs); color: var(--text-muted); transition: color var(--transition); }
   .back-link:hover { color: var(--accent); }
   .back-top { display: inline-block; margin-bottom: 1.5rem; }
+  .edit-link {
+    position: fixed;
+    top: 4rem;
+    right: 1.5rem;
+    font-size: var(--font-size-3xs);
+    color: var(--text-dim);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.75rem;
+    border-radius: 4px;
+    z-index: 101;
+    transition: all var(--transition);
+  }
+  .edit-link:hover { color: var(--accent); border-color: var(--accent); }
 </style>
 
 <script>
@@ -316,4 +335,10 @@ const formattedDate = date.toLocaleDateString('en-US', {
       p.replaceWith(callout);
     }
   });
+
+  // Show edit link only if author cookie is set (via /kara visit)
+  const editLink = document.getElementById('edit-link');
+  if (editLink && document.cookie.includes('kara-author=1')) {
+    editLink.style.display = '';
+  }
 </script>

@@ -39,6 +39,7 @@ const readingTime = Math.max(1, Math.round(words / 200));
   prev={prev ? { slug: prev.id, title: prev.data.title } : null}
   next={next ? { slug: next.id, title: next.data.title } : null}
   draft={post.data.draft}
+  slug={post.id}
 >
   <Content />
 </BlogPost>
