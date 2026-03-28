@@ -1,17 +1,21 @@
 ---
-title: "Agents Are Easy to Start. Hard to Stop."
-description: "Starting an agent is simple. Getting it to stop correctly is where production agents break."
+title: Agents Are Easy to Start. Hard to Stop.
+description: Starting an agent is simple. Getting it to stop correctly is where production agents break.
 date: 2026-03-29
-formatTag: "Fundamentals"
-tags: ["LangGraph", "Think Tool", "ReAct"]
+formatTag: Fundamentals
+tags:
+  - LangGraph
+  - ReAct
 draft: true
 ---
 
-**TLDR:** Every agent is a while loop with an exit condition. The loop is thirty lines of Python. Getting the exit condition right is the entire engineering problem, and the failure modes are subtler than you'd expect.
+**TLDR:** Every agent is a while loop with an exit condition. Getting the exit condition right is the entire engineering problem, and the failure modes are subtler than you'd expect.
 
-Every agent is a while loop. The model reads the message history, decides what to do, calls a tool or stops. Repeat. Thirty lines of Python.
+Request comes in. Model reasons, picks a tool, observes the result, loops back. When there's nothing left to call, the loop ends. That's every agent.
 
-Knowing when to stop is where production agents break.
+![|422](./Attachments/agents-easy-start-hard-stop-1774728115623.webp)
+
+This is called the ReAct pattern (Reason, Act, Observe). Starting this loop is simple. Knowing when to stop is where production agents break.
 
 ## The Loop
 
@@ -45,8 +49,6 @@ No planning engine. No reasoning module. No agent runtime. `messages` is the mem
 > **Note:** `max_iterations` is not optional. Without it, a task that never reaches a stopping point runs until something external kills it. Every production agent needs a hard cap, and the experiments below show exactly why.
 
 LangGraph wraps this exact pattern. `add_edge("tools", "llm")` is the loop back. `tools_condition` is the exit check. `MessagesState` is the message list. The graph makes the loop inspectable and checkpointable, but the loop itself is unchanged.
-
-`[IMAGE: LangGraph graph visualization, llm to tools to llm loop, from notebook cell 5]`
 
 ## Where the Exit Condition Breaks
 
@@ -100,7 +102,7 @@ The "multiply to 84, add to 25" task couldn't be scripted. The model had to gues
 
 > **Tip:** If you can draw the complete flowchart before the agent runs, all branches and all outputs, you don't need an agent. You're adding unpredictable cost and behavior to something that could have been a script.
 
-The agent isn't the interesting part. Every framework wraps the same thirty lines. What matters is the exit condition: how you validate the output, and whether your task actually needs an agent at all. The framework gives you the scaffolding. You still have to get the stopping right.
+The agent isn't the interesting part. Every framework wraps the same loop. What matters is the exit condition: how you validate the output, and whether your task actually needs an agent at all. The framework gives you the scaffolding. You still have to get the stopping right.
 
 *All experiments ran on Gemini 3.1 Flash Lite through LangGraph. Results will vary by model. The failure modes won't.
 Code: [GitHub](https://github.com/karalabs-dev/kara-playbook/tree/main/foundations/agents-easy-start-hard-stop)*
