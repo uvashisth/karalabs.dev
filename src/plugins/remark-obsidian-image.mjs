@@ -11,9 +11,9 @@ export function remarkObsidianImage() {
       node.alt = '';
 
       const alignStyles = {
-        center: `max-width: ${width}px; height: auto; display: block; margin-left: auto; margin-right: auto;`,
-        left: `max-width: ${width}px; height: auto; display: block; margin-right: auto;`,
-        right: `max-width: ${width}px; height: auto; display: block; margin-left: auto;`,
+        center: `width: 100%; max-width: ${width}px; height: auto; display: block; margin-left: auto; margin-right: auto;`,
+        left: `width: 100%; max-width: ${width}px; height: auto; display: block; margin-right: auto;`,
+        right: `width: 100%; max-width: ${width}px; height: auto; display: block; margin-left: auto;`,
       };
 
       node.data = node.data || {};
