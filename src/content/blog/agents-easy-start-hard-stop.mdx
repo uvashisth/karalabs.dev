@@ -41,7 +41,7 @@ def run_agent(task: str, max_iterations: int = 10):
     return messages
 ```
 
-No planning engine. No reasoning module. No agent runtime. `messages` is the memory. Every tool result, every model response accumulates there, and the model reads all of it on every iteration. That accumulated context is where the reasoning happens.
+No planning engine. No reasoning module. No agent runtime. `messages` is the memory. Every tool result and model response accumulates there. The model reads all of it on every iteration. That accumulated context is where the reasoning happens.
 
 > **Note:** `max_iterations` is not optional. Without it, a task that never reaches a stopping point runs until something external kills it. Every production agent needs a hard cap, and the experiments below show exactly why.
 
