@@ -6,108 +6,73 @@ formatTag: Fundamentals
 tags:
   - LangGraph
   - Evaluation
-draft: false
+draft: true
 ---
 
 **TLDR:** System prompts can say "you MUST use this tool." The model only follows that when the tool's output affects what it does next. If it doesn't, the model skips it.
 
-System prompts tell agents which tools to use. The agent doesn't always listen. I tested five mandatory tools on the same research agent — same task, same "you MUST" instruction — to find out which ones get skipped and why.
+Agents pick which tools to call on every loop iteration. System prompts are supposed to constrain that choice — "always classify first," "validate before responding," "log every query." But the model treats these as suggestions, not rules. Some tools get called every time. Others get ignored completely, regardless of how the prompt is worded.
+
+I tested five tools on the same research agent to figure out which ones get followed and which get skipped. The split wasn't random.
 
 {/* TODO: Image 1 — Agent loop diagram showing tool positions: classify/plan/log BEFORE search, think/validate AFTER */}
 
-## The Setup
+## The Experiment
 
-A research agent built with LangGraph and Tavily search. One addition: a validation tool that checks the final answer for unsupported claims before responding.
+A LangGraph research agent with Tavily search. Five tools, each with a different job. Each experiment gives the agent one mandatory tool alongside search, with a system prompt that explicitly says "you MUST use this tool." Same task every time: compare LangGraph and CrewAI for multi-agent systems.
 
-```python
-@tool
-def validate_answer(answer: str, sources: str) -> str:
-    """Validate your final answer before responding. Check that every claim
-    is supported by a source. Flag any claims that aren't grounded in search results."""
-    answer_len = len(answer.split())
-    source_count = sources.count('http')
-    issues = []
-    if source_count == 0:
-        issues.append("NO SOURCES — answer has zero citations.")
-    if answer_len > 200 and source_count < 2:
-        issues.append(f"UNDER-CITED — {answer_len} words but only {source_count} source(s).")
-    if any(phrase in answer.lower() for phrase in ['everyone knows', 'obviously', 'clearly']):
-        issues.append("HEDGE WORDS — contains unsupported confidence markers.")
-    if not issues:
-        return "VALIDATION PASSED — answer appears grounded in sources."
-    return f"VALIDATION FAILED — {len(issues)} issue(s): " + " | ".join(issues)
-```
+The five tools:
 
-The system prompt is explicit:
+**Classify** — takes the query, returns a category label like "framework comparison." The model uses this label to decide how to search.
 
-```python
-sys_prompt = (
-    'You are a research assistant. Search for accurate, up-to-date information. '
-    'IMPORTANT: Before giving your final answer, you MUST use the validate_answer tool '
-    'to check that every claim is supported by a source. Pass your draft answer and '
-    'sources to the validator. If validation fails, fix the issues and validate again. '
-    'Never respond without validating first. Cite your sources with URLs.'
-)
-```
+**Plan** — takes the query, returns a list of sub-questions. The model uses these sub-questions to structure its searches.
 
-The graph is the same ReAct loop — model reasons, picks a tool, observes, loops back:
+**Log** — takes the query, returns a confirmation ID. Audit trail for compliance. The model doesn't use the ID, but the return value confirms the action happened.
 
-```python
-builder = StateGraph(MessagesState)
-builder.add_node('llm', llm_node)
-builder.add_node('tools', ToolNode(tools_list))
-builder.add_edge(START, 'llm')
-builder.add_conditional_edges('llm', tools_condition)
-builder.add_edge('tools', 'llm')
-graph = builder.compile()
-```
+**Think** — takes the model's reasoning so far, returns "Thought noted. Continue with your research." A scratchpad. The return value adds nothing.
 
-Ran it on Gemini 3.1 Flash Lite. Validate was called every single run, 10 out of 10. Switched to Gemini 3.1 Pro. It skipped validation 9 out of 10 runs. No error, no crash — the response looked identical to a validated one.
+**Validate** — takes the draft answer and sources, returns pass/fail with specific issues (missing citations, unsupported claims, hedge words). Meant to run after the model has an answer, before it responds.
 
-## Where Instructions Break
+Each tool got its own system prompt. Every prompt used the same phrasing: "You MUST use [tool] before [searching / responding]." 10 runs per tool, on both Gemini 3.1 Flash Lite and Gemini 3.1 Pro.
 
-Is it just validation? I tested four more tools on the same agent, same task, same "you MUST" system prompt instruction. Each tool represents a different role in the loop.
+## What Got Followed and What Got Skipped
 
-**Classify** — categorizes the query into a topic before searching. Returns a label the model could infer on its own. System prompt: "You MUST classify before searching." Both models followed it every run.
-
-**Plan** — creates a structured research plan with sub-questions. Returns the breakdown the model uses to guide its searches. System prompt: "You MUST plan before searching." Both models followed it every run.
-
-**Log** — audit logging. Records the query for compliance. Returns a confirmation ID. System prompt: "You MUST log before searching." Both models followed it every run.
-
-**Think** — a scratchpad for reasoning between searches. Returns "Thought noted. Continue with your research." System prompt: "Before EVERY search, you MUST use the think tool." Flash Lite skipped it every run. Pro used it 3 out of 10.
-
-The pattern:
-
-| Tool | When Called | Flash Lite | Pro |
+| Tool | Returns | Flash Lite | Pro |
 |---|---|---|---|
-| Classify | Before search | 100% (10/10) | 100% (10/10) |
-| Plan | Before search | 100% (10/10) | 100% (10/10) |
-| Log | Before search | 100% (10/10) | 100% (10/10) |
-| Think | Before/after search | 0% (0/10) | 30% (3/10) |
-| Validate | After answer | 100% (10/10) | 10% (1/10) |
+| Classify | Category label | 100% (10/10) | 100% (10/10) |
+| Plan | Sub-questions | 100% (10/10) | 100% (10/10) |
+| Log | Confirmation ID | 100% (10/10) | 100% (10/10) |
+| Think | "Thought noted" | 0% (0/10) | 30% (3/10) |
+| Validate | Pass/fail + issues | 100% (10/10) | 10% (1/10) |
 
-Classify, plan, and log all run before the search. Their output feeds into the next step — the model needs them to proceed. Think and validate run after the model already has what it needs. Think returns nothing useful. Validate runs after the answer is already formed.
+Classify, plan, and log all got 100% adherence on both models. All three return something the model incorporates into its next action — a label that shapes the search query, sub-questions that guide what to search for, a confirmation that the required step happened.
 
-The counterintuitive part: Pro skips more than Flash Lite, not less. Flash Lite followed validate 10 out of 10 times. Pro skipped it 9 out of 10. The stronger model is more confident it doesn't need the check.
+Think got skipped almost entirely. Flash Lite never called it once across 10 runs despite "Before EVERY search, you MUST use the think tool" in the system prompt. Pro used it in 3 out of 10 runs. The return value — "Thought noted" — gives the model nothing to work with. There's no reason to call it if the output doesn't change what happens next.
 
-**Can better prompting fix it?** Adding few-shot examples — showing the model a complete workflow of using the tool — changed the numbers:
+Validate is the interesting one. Flash Lite followed it every run — searched, validated, responded. Pro skipped it 9 out of 10 times. Same system prompt, same tool, same task. Pro searched, had the answer, and responded without checking. No error, no crash. The output looked identical to a validated run.
+
+The split isn't about tool importance. Validate is arguably the most critical tool in the set — it catches bad answers. But by the time validate would run, the model already has its answer. The tool's output — pass or fail — doesn't change the model's next action. It already decided what to say.
+
+Pro skips more because it's more confident. It runs more searches (2.8 per run vs Flash Lite's 1.0), builds a thorough answer, and decides the check is redundant. The stronger model is less compliant, not more.
+
+## Prompting Partially Fixes It
+
+Adding few-shot examples — showing the model a complete workflow where think gets called before each search — changed the numbers:
 
 - Think on Flash Lite: 0% → 100%
 - Think on Pro: 30% → 90%
 
-Prompting helps. It doesn't solve it. A 10% skip rate on a safety or compliance check is still a production problem.
+The model didn't skip because the instruction was unclear. It skipped because it had no pattern for using a tool with a useless return value. Once shown how, Flash Lite followed it perfectly. Pro still skipped 1 in 10.
 
-## When Instructions Aren't Enough
+Better prompting moves the needle. It doesn't close the gap. A 10% skip rate on a compliance or safety check is still a production problem.
 
-The model doesn't evaluate "is this tool important?" It evaluates "does this tool's output change what I do next?" If the answer is no, the instruction gets optimized away. The system prompt says "must." The model has already moved on.
+## Moving Tools Out of the Toolbox
 
-This isn't fixable with stronger wording or better examples. If a step must always happen, it can't be a tool the model chooses to call. It has to be a step the model can't skip.
+The system prompt says "must." The model evaluates whether the tool's return value changes what happens next. If it doesn't, the instruction gets dropped.
 
-Two ways to do that in LangGraph:
+Stronger wording won't fix this. Few-shot examples won't fully fix it either. If a step must always happen, it can't be a tool the model chooses to call.
 
-**Reposition the tool.** Move validation before the response. Make it a node that sits between the last tool result and the end of the graph. The model can't skip what it doesn't choose.
-
-**Hardcode the node.** Validation isn't a tool — it's a graph node that runs unconditionally:
+In LangGraph, validation can be a node instead of a tool — a step that runs unconditionally between the last tool call and the response:
 
 ```python
 def validate_node(state: MessagesState):
@@ -118,20 +83,20 @@ def validate_node(state: MessagesState):
 builder = StateGraph(MessagesState)
 builder.add_node('llm', llm_node)
 builder.add_node('tools', ToolNode(tools_list))
-builder.add_node('validate', validate_node)       # mandatory
+builder.add_node('validate', validate_node)
 builder.add_edge(START, 'llm')
 builder.add_conditional_edges('llm', tools_condition)
 builder.add_edge('tools', 'llm')
-builder.add_edge('llm', 'validate')                # always runs before END
+builder.add_edge('llm', 'validate')
 builder.add_edge('validate', END)
 graph = builder.compile()
 ```
 
 {/* TODO: Image 2 — Before/after LangGraph diagrams. Before: validate as optional tool. After: validate as hardcoded node between LLM and END */}
 
-Frameworks like Guardrails AI formalize this pattern as middleware — same principle, different packaging.
+The model never sees this node as a tool. It's part of the graph. Same principle applies to logging, PII redaction, or anything else that can't be optional. Frameworks like Guardrails AI package this as middleware.
 
 If a step must always happen, it doesn't belong in the agent's toolbox. It belongs in the graph.
 
-*All experiments ran on Gemini 3.1 Flash Lite and Gemini 3.1 Pro through LangGraph. 10 runs per experiment.
+*Gemini 3.1 Flash Lite and Gemini 3.1 Pro. LangGraph. 10 runs per experiment.
 Code: [GitHub](https://github.com/karalabs-dev/kara-playbook)*
