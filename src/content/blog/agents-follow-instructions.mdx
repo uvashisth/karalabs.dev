@@ -9,7 +9,7 @@ tags:
 draft: true
 ---
 
-**TLDR:** System prompts can say "you MUST use this tool." The model only follows that when the tool sits between it and the next action. Tools that run after the work is done get skipped.
+**TLDR:** System prompts can say "you MUST use this tool." The model only follows that when it can't finish the task without calling the tool. If it can, it skips.
 
 Agents pick which tools to call on every loop iteration. System prompts are supposed to constrain that choice. "Always classify first." "Validate before responding." "Log every query." But the model treats these as suggestions, not rules. Some tools get called every time. Others get ignored completely, regardless of how the prompt is worded.
 
@@ -27,7 +27,7 @@ The five tools:
 
 **Plan** takes the query, returns a list of sub-questions. The model uses these sub-questions to structure its searches.
 
-**Log** takes the query, returns a confirmation ID. Audit trail for compliance. The model doesn't need the ID for its task, but the tool sits between the model and the web search. It has to go through log to get to search.
+**Log** takes the query, returns a confirmation ID. Audit trail for compliance. The model doesn't need the ID for its task, but the prompt says log must run before search. The model can't search without logging first.
 
 **Think** takes the model's reasoning so far, returns "Thought noted. Continue with your research." A scratchpad. The return value adds nothing, and the model can search without it.
 
@@ -45,13 +45,13 @@ Each tool got its own system prompt. Every prompt used the same phrasing: "You M
 | Think | Before web search | No | 0% (0/10) | 30% (3/10) |
 | Validate | After web search | No | 100% (10/10) | 10% (1/10) |
 
-Classify, plan, and log all got 100% adherence on both models. All three sit between the model and the web search. The model goes through them to get to the next step. Classify shapes the search query. Plan structures what to search for. Log gates the search behind a compliance step.
+Classify, plan, and log all got 100% adherence on both models. The model can't finish the task without calling them first. Classify shapes the search query. Plan structures what to search for. Log has to run before search is allowed.
 
-Think got skipped almost entirely. The smaller model never called it once across 10 runs despite "Before EVERY search, you MUST use the think tool" in the system prompt. The larger model used it in 3 out of 10 runs. The prompt says to call it before searching, but the model can search without it. Nothing blocks the path.
+Think got skipped almost entirely. The smaller model never called it once across 10 runs despite "Before EVERY search, you MUST use the think tool" in the system prompt. The larger model used it in 3 out of 10 runs. The prompt says to call it before searching, but the model can search without it. Skipping think doesn't stop the task from finishing.
 
 Validate is the interesting one. The smaller model followed it every run. Searched, validated, responded. The larger model skipped it 9 out of 10 times. Same system prompt, same tool, same task. It searched, had the answer, and responded without checking. No error, no crash. The output looked identical to a validated run.
 
-The split isn't about tool importance. Validate is arguably the most critical tool in the set. It catches bad answers. But by the time validate would run, the work is done. The model already has its answer and there's nothing standing between it and the response.
+The split isn't about tool importance. Validate is arguably the most critical tool in the set. It catches bad answers. But by the time validate would run, the work is done. The model already has its answer and can respond without calling validate.
 
 The larger model skips more because it's more confident. It runs more searches (2.8 per run vs 1.0), builds a thorough answer, and decides the check is redundant. The stronger model is less compliant, not more.
 
@@ -62,13 +62,13 @@ Adding few-shot examples changed the numbers. Instead of just telling the model 
 - Smaller model: 0% → 100%
 - Larger model: 30% → 90%
 
-The model didn't skip because the instruction was unclear. It skipped because it had no pattern for calling a tool that doesn't block the next step. Once shown how, the smaller model followed it perfectly. The larger model still skipped 1 in 10.
+The model didn't skip because the instruction was unclear. It skipped because it had no pattern for calling a tool it can work without. Once shown how, the smaller model followed it perfectly. The larger model still skipped 1 in 10.
 
 Better prompting moves the needle. It doesn't close the gap. A 10% skip rate on a compliance or safety check is still a production problem.
 
 ## Moving Tools Out of the Toolbox
 
-The system prompt says "must." The model evaluates whether the tool stands between it and the next action. If it doesn't, the instruction gets dropped.
+The system prompt says "must." The model evaluates whether it needs the tool's output to continue. If it doesn't, the instruction gets dropped.
 
 Stronger wording won't fix this. Few-shot examples won't fully fix it either. If a step must always happen, it can't be a tool the model chooses to call.
 
