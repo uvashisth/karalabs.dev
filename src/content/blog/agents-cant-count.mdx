@@ -84,12 +84,12 @@ def count_files(owner: str, repo: str, pattern: str = '*.py') -> str:
 
 Same counting questions. Same model. Three runs without computation tools, three runs with. Four of the worst:
 
-| Question | Without | With | Truth |
-| -------- | ------- | ---- | ----- |
-| Python files | 77, 62, 62 | 62, 62, 62 | 62 |
-| Classes in core.py | 9, 8, 9 | 11, 11, 11 | 11 |
-| Test functions (all files) | 337, 212, 250 | 381, 379, 372 | 372 |
-| Tests in test_options.py | 15, 12, 16 | 80, 80, 80 | 80 |
+| Question                   | Without       | With          | Truth |
+| -------------------------- | ------------- | ------------- | ----- |
+| Python files               | 77, 62, 62    | 62, 62, 62    | 62    |
+| Classes in core.py         | 9, 8, 9       | 11, 11, 11    | 11    |
+| Test functions (all files) | 337, 212, 250 | 372, 372, 372 | 372   |
+| Tests in test_options.py   | 15, 12, 16    | 80, 80, 80    | 80    |
 
 Counting accuracy: **48% to 100%.**
 
