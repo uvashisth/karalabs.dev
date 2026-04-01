@@ -1,0 +1,91 @@
+---
+title: "The Data Was in the Context Window"
+description: "The agent fetched the file tree. All 62 Python files were listed. It said 17."
+date: 2026-03-31
+formatTag: Fundamentals
+tags:
+  - LangGraph
+  - Evaluation
+draft: true
+---
+
+**TLDR:** Agents can read data. They can reason about it. They can't compute on it. Counting, diffing, aggregating — if your agent needs to do these, it needs a tool. The model will estimate instead, confidently, and wrong every time.
+
+A LangGraph agent with four tools that read a GitHub repository:
+
+**Repo info** fetches metadata — description, stars, license, topics. The kind of thing you'd see on the repo's landing page.
+
+**File tree** returns every file and directory in the repo, listed line by line. Path, type, size.
+
+**File content** reads a single file's source code. Truncated at 300 lines to keep context manageable.
+
+**Languages** returns the byte count per language. Python: 670K, Shell: 165.
+
+50 factual questions about [Click](https://github.com/pallets/click), a well-known Python CLI library. Every answer has a ground truth. No subjective reviews, just accuracy.
+
+## Where Accuracy Drops
+
+The questions split into two types. **Observation** — "Does this repo have a docs/ directory?" "What license?" "What test framework?" — the model reads and returns. **Computation** — "How many Python files?" "How many classes?" "How many test functions?" — the model needs to count.
+
+Same agent, four different reasoning strategies:
+
+| Agent strategy | Observation | Computation | Gap |
+| ---------- | ----------- | ----------- | --- |
+| No guidance | 88% | 55% | +33% |
+| Plans before reading | 88% | 50% | +39% |
+| Reasons each step | 97% | 72% | +25% |
+| Extended thinking | 96% | 78% | +18% |
+
+Observation accuracy is 88%+ everywhere. Computation always lags. Planning made it worse — the model planned which files to read, read them, and still estimated the counts. Deeper thinking narrowed the gap but didn't close it.
+
+## The Counting Problem
+
+"How many Python files are in this repo?"
+
+Same agent, same tools, same repo, five runs.
+
+Five answers: **77, 45, 19, 17, 65.** Truth: 62.
+
+All five runs called the file tree tool. All 62 files came back in the response, listed line by line. The data was sitting in the context window. The model didn't miscount the same way twice — it estimated, differently each time.
+
+More counting questions, same pattern:
+
+"How many test functions?" — 300, 480, 200, 240, 250. Truth: 372. Zero correct out of five.
+
+"How many classes in core.py?" — 8, 17, 13, 17, 17. Truth: 11. Zero correct out of five.
+
+"How many test functions in test_options.py?" — 53, 42, 16, 34, 75. Truth: 80. One correct out of five.
+
+All reported 100% confidence. All wrong. All different.
+
+> **Note:** Observation questions — bools, string lookups, metadata — scored 88-97% across every experiment. The model handles those reliably. The failure is specific to counting and enumeration, not general comprehension.
+
+## The Fix
+
+Give the agent tools that compute instead of making it infer from raw data.
+
+```python
+@tool
+def count_files(owner: str, repo: str, pattern: str = '*.py') -> str:
+    """Count files matching a glob pattern."""
+    d = _gh(f'/repos/{owner}/{repo}/git/trees/main?recursive=1')
+    matches = [e for e in d.get('tree', [])
+               if e['type'] == 'blob' and fnmatch.fnmatch(e['path'], pattern)]
+    return f'{len(matches)} files match {pattern}'
+```
+
+Same 11 counting questions. Same model. Three runs without computation tools, three runs with.
+
+| Question | Without | With | Truth |
+| -------- | ------- | ---- | ----- |
+| Python files | 77, 62, 62 | 62, 62, 62 | 62 |
+| Classes in core.py | 9, 8, 9 | 11, 11, 11 | 11 |
+| Test functions (all files) | 337, 212, 250 | 381, 379, 372 | 372 |
+| Tests in test_options.py | 15, 12, 16 | 80, 80, 80 | 80 |
+
+Counting accuracy: **48% → 100%.**
+
+The model didn't get smarter. It got the right tools. `count_files` returns 62. Every time. No estimation, no variance. The model reads the number and reports it.
+
+*Gemini 3.1 Flash Lite (baseline/plan/reflect), Gemini 3 Flash (CoT/think/thinking). LangGraph. 3 runs per experiment, 5 for consistency. Results will vary by model. The observation/computation gap won't.
+Code: [GitHub](https://github.com/karalabs-dev/kara-playbook/tree/main/foundations/code-analyzer)*
