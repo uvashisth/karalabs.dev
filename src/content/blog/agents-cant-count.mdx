@@ -9,11 +9,11 @@ tags:
 draft: true
 ---
 
-**TLDR:** Agents can read data. They can reason about it. They can't compute on it. Counting, diffing, aggregating — if your agent needs to do these, it needs a tool. The model will estimate instead, confidently, and wrong every time.
+**TLDR:** Agents can read data. They can reason about it. They can't compute on it. Counting, diffing, aggregating: if your agent needs to do these, it needs a tool. The model will estimate instead. Confidently. Wrong every time.
 
 A LangGraph agent with four tools that read a GitHub repository:
 
-**Repo info** fetches metadata — description, stars, license, topics. The kind of thing you'd see on the repo's landing page.
+**Repo info** fetches metadata. Descri;ption, stars, license, topics. The kind of thing you'd see on the repo's landing page.
 
 **File tree** returns every file and directory in the repo, listed line by line. Path, type, size.
 
@@ -21,11 +21,37 @@ A LangGraph agent with four tools that read a GitHub repository:
 
 **Languages** returns the byte count per language. Python: 670K, Shell: 165.
 
-50 factual questions about [Click](https://github.com/pallets/click), a well-known Python CLI library. Every answer has a ground truth. No subjective reviews, just accuracy.
+50 factual questions about [Click](https://github.com/pallets/click), a well-known Python CLI library. Every answer has a ground truth.
 
-## Where Accuracy Drops
+## How Many Python Files?
 
-The questions split into two types. **Observation** — "Does this repo have a docs/ directory?" "What license?" "What test framework?" — the model reads and returns. **Computation** — "How many Python files?" "How many classes?" "How many test functions?" — the model needs to count.
+The first question: "How many Python files are in this repo?"
+
+The agent called the file tree tool. All 62 `.py` files came back, listed line by line. The agent answered: **17.**
+
+Run it again. **77.** Again: **45.** Again: **19.** Again: **65.**
+
+Five runs, five different answers. Truth: 62. The data was in the context window every time. The agent fetched it, had it, and still couldn't count it.
+
+All five reported 100% confidence.
+
+Same pattern on other counting questions:
+
+"How many test functions across all test files?" Five answers: 300, 480, 200, 240, 250. Truth: 372. Zero correct.
+
+"How many classes in core.py?" Five answers: 8, 17, 13, 17, 17. Truth: 11. Zero correct.
+
+"How many test functions in test_options.py?" Five answers: 53, 42, 16, 34, 75. Truth: 80. Zero correct.
+
+The agent isn't miscounting the same way twice. It's estimating, differently each time.
+
+> **Note:** The agent fetched the file tree in all five runs. The 62 files were listed in the context window. This isn't a retrieval failure. It's a computation failure. The model can see the data. It can't enumerate it.
+
+## Not Everything Breaks
+
+Not all 50 questions failed. "Does this repo have a docs/ directory?" Correct, every run. "What license?" Correct. "What test framework?" Correct.
+
+The split: questions where the agent **reads and returns** something (observation) vs questions where the agent needs to **count or enumerate** (computation).
 
 Same agent, four different reasoning strategies:
 
@@ -36,33 +62,11 @@ Same agent, four different reasoning strategies:
 | Reasons each step | 97% | 72% | +25% |
 | Extended thinking | 96% | 78% | +18% |
 
-Observation accuracy is 88%+ everywhere. Computation always lags. Planning made it worse — the model planned which files to read, read them, and still estimated the counts. Deeper thinking narrowed the gap but didn't close it.
-
-## The Counting Problem
-
-"How many Python files are in this repo?"
-
-Same agent, same tools, same repo, five runs.
-
-Five answers: **77, 45, 19, 17, 65.** Truth: 62.
-
-All five runs called the file tree tool. All 62 files came back in the response, listed line by line. The data was sitting in the context window. The model didn't miscount the same way twice — it estimated, differently each time.
-
-More counting questions, same pattern:
-
-"How many test functions?" — 300, 480, 200, 240, 250. Truth: 372. Zero correct out of five.
-
-"How many classes in core.py?" — 8, 17, 13, 17, 17. Truth: 11. Zero correct out of five.
-
-"How many test functions in test_options.py?" — 53, 42, 16, 34, 75. Truth: 80. One correct out of five.
-
-All reported 100% confidence. All wrong. All different.
-
-> **Note:** Observation questions — bools, string lookups, metadata — scored 88-97% across every experiment. The model handles those reliably. The failure is specific to counting and enumeration, not general comprehension.
+Observation accuracy is 88%+ everywhere. Computation always lags. Planning made it worse. The agent planned which files to read, read them, and still estimated the counts. Deeper thinking narrowed the gap but didn't close it.
 
 ## The Fix
 
-Give the agent tools that compute instead of making it infer from raw data.
+The agent had tools to *fetch* data. It had no tools to *compute* on it.
 
 ```python
 @tool
@@ -83,7 +87,7 @@ Same 11 counting questions. Same model. Three runs without computation tools, th
 | Test functions (all files) | 337, 212, 250 | 381, 379, 372 | 372 |
 | Tests in test_options.py | 15, 12, 16 | 80, 80, 80 | 80 |
 
-Counting accuracy: **48% → 100%.**
+Counting accuracy: **48% to 100%.**
 
 The model didn't get smarter. It got the right tools. `count_files` returns 62. Every time. No estimation, no variance. The model reads the number and reports it.
 
