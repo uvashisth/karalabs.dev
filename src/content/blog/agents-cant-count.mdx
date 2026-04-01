@@ -43,7 +43,7 @@ Same pattern on other counting questions:
 
 "How many classes in core.py?" Five answers: 8, 17, 13, 17, 17. Truth: 11. Zero correct.
 
-"How many test functions in test_options.py?" Five answers: 53, 42, 16, 34, 75. Truth: 80. Zero correct.
+"How many test functions in test_options.py?" Five answers: 53, 42, 16, 34, 75. Truth: 80. One got close.
 
 The agent isn't miscounting the same way twice. It's estimating, differently each time.
 
@@ -82,7 +82,7 @@ def count_files(owner: str, repo: str, pattern: str = '*.py') -> str:
     return f'{len(matches)} files match {pattern}'
 ```
 
-Same 11 counting questions. Same model. Three runs without computation tools, three runs with.
+Same counting questions. Same model. Three runs without computation tools, three runs with. Four of the worst:
 
 | Question | Without | With | Truth |
 | -------- | ------- | ---- | ----- |
@@ -95,5 +95,5 @@ Counting accuracy: **48% to 100%.**
 
 The model didn't get smarter. It got the right tools. `count_files` returns 62. Every time. No estimation, no variance. The model reads the number and reports it.
 
-*Gemini 3.1 Flash Lite (baseline/plan/reflect), Gemini 3 Flash (CoT/think/thinking). LangGraph. 3 runs per experiment, 5 for consistency. Results will vary by model. The observation/computation gap won't.
+*Gemini 3.1 Flash Lite and Gemini 3 Flash. LangGraph. 3 runs per experiment, 5 for consistency. Results will vary by model. The observation/computation gap won't.
 Code: [GitHub](https://github.com/karalabs-dev/kara-playbook/tree/main/foundations/code-analyzer)*
