@@ -27,13 +27,13 @@ A LangGraph agent with four tools that read a GitHub repository:
 
 ## How Many Python Files?
 
-The first question: "How many Python files are in this repo?"
+The first question: `How many Python files are in this repo?`
 
 The agent called the file tree tool. All 62 `.py` files came back, listed line by line. The agent answered: **17.**
 
 Run it again. **77.** Again: **45.** Again: **19.** Again: **65.**
 
-Five runs, five different answers. Truth: 62. The data was in the context window every time. The agent fetched it, had it, and still couldn't count it.
+Five runs, five different answers. Truth: **62**. The data was in the context window every time. The agent fetched it, had it, and still couldn't count it.
 
 All five reported 100% confidence.
 
