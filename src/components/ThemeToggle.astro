@@ -32,10 +32,10 @@
     border-color: var(--border-accent);
     color: var(--text);
   }
-  :root .icon-sun { display: block; }
-  :root .icon-moon { display: none; }
-  [data-theme="light"] .icon-sun { display: none; }
-  [data-theme="light"] .icon-moon { display: block; }
+  :root .icon-sun { display: none; }
+  :root .icon-moon { display: block; }
+  [data-theme="dark"] .icon-sun { display: block; }
+  [data-theme="dark"] .icon-moon { display: none; }
 </style>
 
 <script is:inline>
@@ -43,11 +43,11 @@
     const toggle = document.getElementById('theme-toggle');
     toggle?.addEventListener('click', () => {
       const current = document.documentElement.getAttribute('data-theme');
-      const next = current === 'light' ? 'dark' : 'light';
-      if (next === 'dark') {
+      const next = current === 'dark' ? 'light' : 'dark';
+      if (next === 'light') {
         document.documentElement.removeAttribute('data-theme');
       } else {
-        document.documentElement.setAttribute('data-theme', 'light');
+        document.documentElement.setAttribute('data-theme', 'dark');
       }
       localStorage.setItem('theme', next);
     });
