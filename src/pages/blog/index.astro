@@ -13,7 +13,8 @@ const allPosts = (await getCollection('blog', ({ data }) => !data.draft))
 const featured = allPosts[0];
 const posts = allPosts.slice(1);
 
-const formatTags = ['All', 'Fundamentals', 'Comparison', 'Benchmark', 'Case Study', 'Build Log', 'Opinion', 'Open Source'];
+// const formatTags = ['All', 'Fundamentals', 'Comparison', 'Benchmark', 'Case Study', 'Build Log', 'Opinion', 'Open Source'];
+const formatTags = ['All', 'Fundamentals', 'Build Log'];
 
 const featuredDate = featured?.data.date.toLocaleDateString('en-US', {
   year: 'numeric',
