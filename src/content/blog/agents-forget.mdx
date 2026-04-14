@@ -13,7 +13,7 @@ draft: true
 
 An agent's memory is its message history. Every turn appends to it, and every turn the model re-reads all of it. By turn 10 you're paying to re-send turn 1 ten times. By turn 20 the context is large enough that something has to be cut, summarized, or moved out of the conversation entirely. The four strategies below handle that differently, and the one with perfect recall isn't the one you'd pick for a real system.
 
-{/* IMAGE: hero diagram showing the 4 strategies side by side as mental models — baseline (messages dropping off the front), sliding window (fixed-size window), summary (messages collapsing to a bullet), scratchpad (messages flowing into an external box) */}
+![697](./Attachments/agents-forget-1776198335551.png){/* IMAGE: hero diagram showing the 4 strategies side by side as mental models — baseline (messages dropping off the front), sliding window (fixed-size window), summary (messages collapsing to a bullet), scratchpad (messages flowing into an external box) */}
 
 ## The Experiment
 
@@ -23,9 +23,7 @@ To force the strategies to actually do something, I capped the context window at
 
 Same graph for all four strategies. One node manages context, the next node calls the LLM:
 
-```
-START → context_manager → llm → END
-```
+![697](./Attachments/agents-forget-1776198695678.png)
 
 Only the `context_manager` node changes between runs. Everything else is identical, same model, same task, same prompt.
 
@@ -74,12 +72,12 @@ In this experiment the scratchpad actually exceeded the 1,400 token cap on later
 
 ![623](./Attachments/agents-forget-1776195263878.png)
 
-| Strategy | What it trades | How it fails |
-|----------|----------------|--------------|
-| Baseline | Old facts | Forgets gradually as the budget fills |
-| Sliding Window | Old facts | Drops in chunks, hits a cliff |
-| Running Summary | Precision | Facts blur with each compression pass |
-| Scratchpad | Message budget | System message grows until no room is left for the conversation |
+| Strategy | Knowledge fate | What it trades | How it fails |
+|----------|----------------|----------------|--------------|
+| Baseline | Lost permanently | Old facts | Forgets gradually as the budget fills |
+| Sliding Window | Lost outside window | Old facts | Drops in chunks, hits a cliff |
+| Running Summary | Lossy compression | Precision | Facts blur with each compression pass |
+| Scratchpad | Perfect retention | Message budget | System message grows until no room is left for the conversation |
 
 There isn't a strategy that gives you perfect recall, low token cost, and unbounded conversation length all at once. Each one picks two and gives up the third. Baseline and sliding window give up retention to keep the budget. Summary gives up precision to keep both. Scratchpad gives up window space to keep precision.
 
