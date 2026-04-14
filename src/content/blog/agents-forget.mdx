@@ -11,9 +11,9 @@ draft: false
 
 **TLDR:** An agent learns 10 facts, then gets quizzed on them across the next 20 turns. Four ways to manage the growing context. Every one of them fails differently. None retain everything for free.
 
-An agent's memory is its message history. Every turn appends to it, and every turn the model re-reads all of it. By turn 10 you're paying to re-send turn 1 ten times. By turn 20 the context is large enough that something has to be cut, summarized, or moved out of the conversation entirely. The four strategies below handle that differently, and the one with perfect recall isn't the one you'd pick for a real system.
+An agent's memory is its message history. Every turn appends to it, and every turn the model re-reads all of it. Every turn pays all previous turns. Eventually the context grows past the budget and something has to be cut, summarized, or moved out of the conversation entirely. The four strategies below handle that differently, and the one with perfect recall isn't the one you'd pick for a real system.
 
-![697](./Attachments/agents-forget-1776198335551.png){/* IMAGE: hero diagram showing the 4 strategies side by side as mental models — baseline (messages dropping off the front), sliding window (fixed-size window), summary (messages collapsing to a bullet), scratchpad (messages flowing into an external box) */}
+![697](./Attachments/agents-forget-1776198335551.png)
 
 ## The Experiment
 
@@ -29,7 +29,7 @@ Only the `context_manager` node changes between runs. Everything else is identic
 
 ## The Four Strategies
 
-**Baseline** drops the oldest messages when the context exceeds the budget. No intelligence, no preservation. The default if you don't write a context manager at all.
+**Baseline (Token Truncate)** drops the oldest messages when the context exceeds the budget. No intelligence, no preservation. The default if you don't write a context manager at all.
 
 **Sliding window** keeps the last 12 messages and drops everything else. Predictable, but anything that falls out of the window is gone forever.
 
@@ -41,7 +41,7 @@ Only the `context_manager` node changes between runs. Everything else is identic
 
 | Strategy | Accuracy | Retention | Tokens | Cost | Recent | Mid | Early Recall |
 |----------|----------|-----------|--------|------|--------|-----|--------------|
-| Baseline | 0.50 | 0.00 | 25,780 | $0.003 | 0.67 | 0.14 | 0.00 |
+| Baseline (Token Truncate) | 0.50 | 0.00 | 25,780 | $0.003 | 0.67 | 0.14 | 0.00 |
 | Sliding Window | 0.47 | 0.00 | 17,686 | $0.002 | 0.50 | 0.00 | 0.14 |
 | Running Summary | 0.73 | 1.00 | 28,943 | $0.004 | 0.67 | 0.43 | 0.71 |
 | Scratchpad | 1.00 | 1.00 | 83,179 | $0.010 | 1.00 | 1.00 | 1.00 |
