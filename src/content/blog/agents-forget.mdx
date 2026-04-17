@@ -1,15 +1,15 @@
 ---
-title: "Agents Forget. Every Common Fix Trades One Problem for Another."
-description: "Four context management strategies on the same task. The one with perfect recall blew the token budget. The cheapest one forgot everything."
+title: Agents Forget. Every Common Fix Trades One Problem for Another.
+description: Four context management strategies on the same task. The one with perfect recall blew the token budget. The cheapest one forgot everything.
 date: 2026-04-14
 formatTag: Fundamentals
 tags:
   - LangGraph
-  - Context Engineering
+  - ContextEngineering
 draft: false
 ---
 
-**TLDR:** An agent learns 10 facts, then gets quizzed on them across the next 20 turns. Four ways to manage the growing context. Every one of them fails differently. None retain everything for free.
+**TLDR:** An agent learns 10 facts, then gets quizzed on them across the next 20 turns. Four ways to manage the growing context. Every one of them fails differently. None retain everything for free. 
 
 An agent's memory is its message history. Every turn appends to it, and every turn the model re-reads all of it. Every turn pays all previous turns. Eventually the context grows past the budget and something has to be cut, summarized, or moved out of the conversation entirely. The four strategies below handle that differently, and the one with perfect recall isn't the one you'd pick for a real system.
 
